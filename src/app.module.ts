@@ -9,7 +9,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { OrderModule } from './order/order.module';
 import { SellerModule } from './seller/seller.module';
-import { SellerPayoutModule } from './seller-payout/seller-payout.module';
+import { PayoutModule } from './payout/payout.module';
 import { ProductModule } from './product/product.module';
 import { OrderItemModule } from './order-item/order-item.module';
 import { CategoryModule } from './category/category.module';
@@ -51,7 +51,7 @@ import { SharedModule } from './common/module/shared.module';
     AuthModule,
     OrderModule,
     SellerModule,
-    SellerPayoutModule,
+    PayoutModule,
     ProductModule,
     OrderItemModule,
     CategoryModule,
