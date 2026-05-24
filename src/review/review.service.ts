@@ -24,7 +24,7 @@ export class ReviewService {
     @InjectModel('Product')
     private readonly productModel: Model<ProductDocument>,
     @InjectModel('Seller')
-    private readonly sellerProfileModel: Model<SellerDocument>,
+    private readonly sellerModel: Model<SellerDocument>,
     private readonly paginationService: PaginationService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
@@ -186,7 +186,7 @@ export class ReviewService {
 
   // ── Seller: list reviews on own products ──────────────────────────────────────
   async listSellerReviews(userId: string, query: ListReviewsQueryDto) {
-    const seller = await this.sellerProfileModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({ userId });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const { skip, limit, page } = this.paginationService.getPagination(

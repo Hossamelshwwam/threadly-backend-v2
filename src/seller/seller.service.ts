@@ -165,7 +165,7 @@ export class SellerService {
     await seller.save();
 
     if (oldLogo) {
-      await this.cloudinaryService.deleteFile(oldLogo);
+      await this.cloudinaryService.deleteFile(oldLogo).catch(() => null);
     }
     return { logo: seller.logo };
   }
@@ -259,7 +259,7 @@ export class SellerService {
       user.name,
       input.status === 'approved',
       input.adminNote,
-    );
+    ).catch(() => null);
 
     return seller;
   }
