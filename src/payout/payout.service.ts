@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { PayoutDocument } from './schema/payout.schema';
 import { SellerDocument } from '../seller/schema/seller.schema';
 import { ListPayoutsQueryDto, UpdatePayoutStatusDto } from './dto/payout.dto';
@@ -222,7 +222,7 @@ export class PayoutService {
     }
 
     payout.status = input.status;
-    payout.processedBy = adminId as any;
+    payout.processedBy = new Types.ObjectId(adminId);
     if (input.adminNote) payout.adminNote = input.adminNote;
 
     await payout.save();
