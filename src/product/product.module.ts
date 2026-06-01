@@ -16,5 +16,6 @@ import { SellerSchema } from 'src/seller/schema/seller.schema';
   ],
   providers: [ProductService],
   controllers: [ProductController],
+  exports: [ProductService],
 })
 export class ProductModule {}

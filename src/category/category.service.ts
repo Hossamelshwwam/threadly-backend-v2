@@ -6,10 +6,15 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category, CategoryDocument } from './schema/category.schema';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import {
+  AdminListCategoriesQueryDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from './dto/category.dto';
 import { ProductDocument } from 'src/product/schema/product.schema';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { SlugService } from 'src/common/services/slug.service';
+import { PaginationService } from 'src/common/services/pagination.service';
 
 @Injectable()
 export class CategoryService {
@@ -20,6 +25,7 @@ export class CategoryService {
     private readonly productModel: Model<ProductDocument>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly slugService: SlugService,
+    private readonly paginationService: PaginationService,
   ) {}
 
   async createCategory(body: CreateCategoryDto) {
@@ -197,12 +203,32 @@ export class CategoryService {
     return targetCategory;
   }
 
-  async adminListCategories() {
-    const categories = await this.categoryModel
-      .find()
-      .populate('parentId', 'name slug')
-      .sort({ name: 1 });
+  async adminListCategories(query: AdminListCategoriesQueryDto) {
+    const { skip, limit, page } = this.paginationService.getPagination(
+      query.page,
+      query.limit,
+    );
 
-    return categories;
+    const filter: Record<string, unknown> = {};
+    if (query.active) filter.isActive = query.active;
+
+    const [categories, total] = await Promise.all([
+      this.categoryModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .populate('parentId')
+        .skip(skip)
+        .limit(limit),
+      this.categoryModel.countDocuments(filter),
+    ]);
+
+    return {
+      categories,
+      pagination: this.paginationService.buildPaginationMeta(
+        total,
+        page,
+        limit,
+      ),
+    };
   }
 }

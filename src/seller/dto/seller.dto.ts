@@ -31,8 +31,8 @@ export class AdminUpdateSellerStatusDto extends createZodDto(
 ) {}
 
 export const adminListSellersQuerySchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+  page: z.coerce.number().min(1).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
   status: z.enum(['pending', 'approved', 'suspended']).optional(),
 });
 

@@ -24,7 +24,7 @@ import {
   AdminListSellersQueryDto,
 } from './dto/seller.dto';
 
-@Controller('seller')
+@Controller('sellers')
 export class SellerController {
   constructor(private readonly sellerService: SellerService) {}
 

@@ -14,5 +14,6 @@ import { InventorySchema } from 'src/inventory/schema/inventory.schema';
   ],
   controllers: [CartController],
   providers: [CartService],
+  exports: [CartService],
 })
 export class CartModule {}

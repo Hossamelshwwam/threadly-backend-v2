@@ -40,7 +40,7 @@ export class OrderService {
     @InjectModel('Inventory') private readonly inventoryModel: Model<any>,
     @InjectModel('Product') private readonly productModel: Model<any>,
     @InjectModel('Seller') private readonly sellerModel: Model<SellerDocument>,
-    @InjectModel('SellerPayout') private readonly sellerPayoutModel: Model<any>,
+    @InjectModel('Payout') private readonly payoutModel: Model<any>,
     @InjectModel('Review') private readonly reviewModel: Model<any>,
     @InjectConnection() private readonly connection: Connection,
     private readonly paginationService: PaginationService,
@@ -135,7 +135,7 @@ export class OrderService {
       );
       const netAmount = parseFloat((item.total - platformFee).toFixed(2));
 
-      await this.sellerPayoutModel.create(
+      await this.payoutModel.create(
         [
           {
             sellerId: item.sellerId,

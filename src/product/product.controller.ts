@@ -48,7 +48,7 @@ export class ProductController {
   }
 
   @AuthRoles('admin', 'seller')
-  @Delete('me/:id/images')
+  @Post('me/:id/images')
   @ApiBearerAuth()
   @UseInterceptors(FilesInterceptor('images', 8, multerConfig))
   async uploadImages(

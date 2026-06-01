@@ -25,12 +25,12 @@ import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
 import type { AuthUser } from 'src/common/types/user.type';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth()
-  @AuthRoles('admin')
+  @AuthRoles()
   @Get('me')
   async getMe(@CurrentUser() user: AuthUser) {
     const data = await this.userService.getMyProfile(user.userId);
@@ -109,7 +109,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @Patch('me/addresses/{id}/default')
+  @Patch('me/addresses/:id/default')
   async setDefaultAddress(
     @CurrentUser() user: AuthUser,
     @Param('id') id: string,
@@ -130,17 +130,18 @@ export class UserController {
       success: true,
       data: data.users,
       message: 'Admins fetched successfully',
+      pagination: data.pagination,
     };
   }
 
   @ApiBearerAuth()
-  @Get('admin')
+  @Get('admin/:id')
   async getAdmin(@Param('id') id: string) {
     const data = await this.userService.getAdmin(id);
     return {
       success: true,
       data,
-      message: 'Admin fetched successfully',
+      message: 'User fetched successfully',
     };
   }
 

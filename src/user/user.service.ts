@@ -225,7 +225,7 @@ export class UserService {
     ]);
 
     const recentOrders = await this.orderModel
-      .find({ buyerId: userId })
+      .find({ buyerId: user._id })
       .sort({ createdAt: -1 })
       .limit(5);
 

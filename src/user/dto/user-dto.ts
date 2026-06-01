@@ -36,8 +36,8 @@ export const updateAddressSchema = addAddressSchema.partial();
 export class UpdateAddressDto extends createZodDto(updateAddressSchema) {}
 
 export const getAllAdminsQueryDto = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+  page: z.coerce.number().min(1).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
   role: z.enum(['buyer', 'seller', 'admin']).optional(),
   search: z.string().optional(),
 });

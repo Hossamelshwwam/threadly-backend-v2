@@ -8,7 +8,7 @@ import {
   ResetPasswordDto,
   SendVerificationEmailDto,
 } from './dto/auth.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +26,14 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'h.elshwwam123@gmail.com',
+        password: 'Hossam123!',
+      },
+    },
+  })
   async login(@Body() body: LoginDto) {
     const data = await this.authService.login(body);
     return {

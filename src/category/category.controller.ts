@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   HttpException,
@@ -10,11 +11,17 @@ import {
   ParseFilePipe,
   Patch,
   Post,
+  Put,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import {
+  AdminListCategoriesQueryDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from './dto/category.dto';
 import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/cloudinary/multer.config';
@@ -23,6 +30,26 @@ import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
+  @Get()
+  async listCategories() {
+    const data = await this.categoryService.listCategories(true);
+    return { data, message: 'Categories fetched', success: true };
+  }
+
+  @AuthRoles('admin')
+  @Get('admin')
+  @ApiBearerAuth()
+  async adminListCategories(@Query() query: AdminListCategoriesQueryDto) {
+    const data = await this.categoryService.adminListCategories(query);
+
+    return {
+      data: data.categories,
+      pagination: data.pagination,
+      message: 'Categories fetched',
+      success: true,
+    };
+  }
 
   @AuthRoles('admin')
   @Post('admin')
@@ -69,7 +96,7 @@ export class CategoryController {
   }
 
   @AuthRoles('admin')
-  @Patch('admin/:id')
+  @Put('admin/:id')
   @ApiBearerAuth()
   async updateCategory(
     @Param('id') id: string,
@@ -80,17 +107,11 @@ export class CategoryController {
   }
 
   @AuthRoles('admin')
-  @Patch('admin/:id')
+  @Delete('admin/:id')
   @ApiBearerAuth()
   async deleteCategory(@Param('id') id: string) {
     await this.categoryService.deleteCategory(id);
     return { data: null, message: 'Category deleted', success: true };
-  }
-
-  @Get()
-  async listCategories() {
-    const data = await this.categoryService.listCategories(true);
-    return { data, message: 'Categories fetched', success: true };
   }
 
   @AuthRoles()
@@ -98,14 +119,5 @@ export class CategoryController {
   async getCategoryBySlug(@Param('slug') slug: string) {
     const data = await this.categoryService.getCategoryBySlug(slug);
     return { data, message: 'Category fetched', success: true };
-  }
-
-  @AuthRoles('admin')
-  @Get('admin')
-  @ApiBearerAuth()
-  async adminListCategories() {
-    const data = await this.categoryService.adminListCategories();
-
-    return { data, message: 'Categories fetched', success: true };
   }
 }

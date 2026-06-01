@@ -16,3 +16,13 @@ export const updateCategorySchema = z.object({
 });
 
 export class UpdateCategoryDto extends createZodDto(updateCategorySchema) {}
+
+export const adminListCategoriesQuerySchema = z.object({
+  page: z.coerce.number().min(1).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
+  active: z.enum(['true', 'false']).optional(),
+});
+
+export class AdminListCategoriesQueryDto extends createZodDto(
+  adminListCategoriesQuerySchema,
+) {}
