@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProductDocument } from './schema/product.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { SellerDocument } from 'src/seller/schema/seller.schema';
 import { CategoryDocument } from 'src/category/schema/category.schema';
 import { InventoryDocument } from 'src/inventory/schema/inventory.schema';
@@ -83,8 +83,13 @@ export class ProductService {
       );
 
     const product = await this.productModel.create({
-      sellerId: role === 'admin' ? input.sellerId || null : seller?._id,
-      categoryId: input.categoryId,
+      sellerId:
+        role === 'admin'
+          ? input.sellerId
+            ? new Types.ObjectId(input.sellerId)
+            : null
+          : seller?._id,
+      categoryId: new Types.ObjectId(input.categoryId),
       name: input.name,
       slug,
       description: input.description,
@@ -298,8 +303,7 @@ export class ProductService {
     query: ListProductsQueryDto,
   ) {
     const seller = await this.sellerModel.findOne({ userId });
-    if (!seller && role !== 'admin')
-      throw new NotFoundException('Seller profile not found');
+    if (!seller) throw new NotFoundException('Seller profile not found');
 
     const { skip, limit, page } = this.paginationService.getPagination(
       query.page,
@@ -311,6 +315,7 @@ export class ProductService {
       : { sellerId: null };
     if (query.status) filter.status = query.status;
     if (query.search) filter.$text = { $search: query.search };
+    if (query.category) filter.categoryId = new Types.ObjectId(query.category);
 
     const [products, total] = await Promise.all([
       this.productModel
@@ -332,6 +337,26 @@ export class ProductService {
     };
   }
 
+  // ── Seller: get single product ─────────────────────────────────────────────────
+  async getSellerProduct(productId: string, userId: string) {
+    const seller = await this.sellerModel.findOne({
+      userId,
+    });
+
+    if (!seller) throw new NotFoundException('Seller not found');
+
+    const product = await this.productModel
+      .findOne({
+        _id: new Types.ObjectId(productId),
+        sellerId: seller?._id,
+      })
+      .populate('categoryId', 'name slug')
+      .populate('sellerId', 'storeName storeSlug status');
+
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
+  }
+
   // ── Admin: list all products ──────────────────────────────────────────────────
   async adminListProducts(query: ListProductsQueryDto) {
     const { skip, limit, page } = this.paginationService.getPagination(
@@ -341,8 +366,8 @@ export class ProductService {
 
     const filter: Record<string, unknown> = {};
     if (query.status) filter.status = query.status;
-    if (query.seller) filter.sellerId = query.seller;
-    if (query.category) filter.categoryId = query.category;
+    if (query.seller) filter.sellerId = new Types.ObjectId(query.seller);
+    if (query.category) filter.categoryId = new Types.ObjectId(query.category);
     if (query.search) filter.$text = { $search: query.search };
 
     const [products, total] = await Promise.all([
@@ -364,6 +389,17 @@ export class ProductService {
         limit,
       ),
     };
+  }
+
+  // ── Admin: get single product ─────────────────────────────────────────────────
+  async getAdminProduct(productId: string) {
+    const product = await this.productModel
+      .findById(productId)
+      .populate('categoryId', 'name slug')
+      .populate('sellerId', 'storeName storeSlug status');
+
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
   }
 
   // ── Admin: force archive ──────────────────────────────────────────────────────

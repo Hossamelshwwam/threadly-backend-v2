@@ -8,10 +8,11 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  Patch,
   Post,
   Put,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
@@ -32,6 +33,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  // ── Create Products ────────────────────────────────────────────────────────────────────
   @AuthRoles('admin', 'seller')
   @Post()
   @ApiBearerAuth()
@@ -47,6 +49,67 @@ export class ProductController {
     return { data, message: 'Product created', success: true };
   }
 
+  // ── Get Products ────────────────────────────────────────────────────────────────────
+  @Get()
+  async listProducts(@Query() query: ListProductsQueryDto) {
+    const data = await this.productService.listProducts(query);
+    return {
+      data: data.products,
+      message: 'Product fetched',
+      success: true,
+      pagination: data.pagination,
+    };
+  }
+
+  // ── Get Products by Admin ────────────────────────────────────────────────────────────────────
+  @AuthRoles('admin')
+  @Get('admin')
+  @ApiBearerAuth()
+  async adminListProducts(@Query() query: ListProductsQueryDto) {
+    const data = await this.productService.adminListProducts(query);
+    return {
+      data: data.products,
+      message: 'Product fetched',
+      success: true,
+      pagination: data.pagination,
+    };
+  }
+
+  // ── Get Product by Admin ────────────────────────────────────────────────────────────────────
+  @AuthRoles('admin')
+  @Get('admin/:id')
+  @ApiBearerAuth()
+  async getAdminProduct(@Param('id') id: string) {
+    const data = await this.productService.getAdminProduct(id);
+    return { data, message: 'Product fetched', success: true };
+  }
+
+  // ── Get Product by Seller ────────────────────────────────────────────────────────────────────
+  @AuthRoles('seller')
+  @Get('me/:id')
+  @ApiBearerAuth()
+  async getSellerProduct(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUser,
+  ) {
+    const data = await this.productService.getSellerProduct(id, user.userId);
+    return { data, message: 'Product fetched', success: true };
+  }
+
+  // ── Archive Products by Admin ────────────────────────────────────────────────────────────────────
+  @AuthRoles('admin')
+  @Patch('admin/:id/archive')
+  @ApiBearerAuth()
+  async adminArchiveProduct(@Param('id') id: string) {
+    const data = await this.productService.adminArchiveProduct(id);
+    return {
+      data,
+      message: 'Product archived by admin',
+      success: true,
+    };
+  }
+
+  // ── Add Images Products ────────────────────────────────────────────────────────────────────
   @AuthRoles('admin', 'seller')
   @Post('me/:id/images')
   @ApiBearerAuth()
@@ -54,7 +117,7 @@ export class ProductController {
   async uploadImages(
     @CurrentUser() user: AuthUser,
     @Param('id') id: string,
-    @UploadedFile(
+    @UploadedFiles(
       new ParseFilePipe({
         fileIsRequired: true,
         validators: [
@@ -78,6 +141,7 @@ export class ProductController {
     return { data, message: 'Images uploaded', success: true };
   }
 
+  // ── Delete Image Products ────────────────────────────────────────────────────────────────────
   @AuthRoles('admin', 'seller')
   @Delete('me/:id/images')
   @ApiBearerAuth()
@@ -95,6 +159,7 @@ export class ProductController {
     return { data: null, message: 'Image deleted', success: true };
   }
 
+  // ── Update Product ────────────────────────────────────────────────────────────────────
   @AuthRoles('admin', 'seller')
   @Put('me/:id')
   @ApiBearerAuth()
@@ -112,6 +177,7 @@ export class ProductController {
     return { data, message: 'Product updated', success: true };
   }
 
+  // ── Archive Product ────────────────────────────────────────────────────────────────────
   @AuthRoles('admin', 'seller')
   @Delete('me/:id')
   @ApiBearerAuth()
@@ -124,24 +190,8 @@ export class ProductController {
     return { data, message: 'Product archived', success: true };
   }
 
-  @Get(':slug')
-  async getProductBySlug(@Param('slug') slug: string) {
-    const data = await this.productService.getProductBySlug(slug);
-    return { data, message: 'Product fetched', success: true };
-  }
-
-  @Get()
-  async listProducts(@Query() query: ListProductsQueryDto) {
-    const data = await this.productService.listProducts(query);
-    return {
-      data: data.products,
-      message: 'Product fetched',
-      success: true,
-      pagination: data.pagination,
-    };
-  }
-
-  @AuthRoles('admin', 'seller')
+  // ── Get Own Products ────────────────────────────────────────────────────────────────────
+  @AuthRoles('seller')
   @Get('me')
   @ApiBearerAuth()
   async listMyProducts(
@@ -161,28 +211,10 @@ export class ProductController {
     };
   }
 
-  @AuthRoles('admin')
-  @Get('admin')
-  @ApiBearerAuth()
-  async adminListProducts(@Query() query: ListProductsQueryDto) {
-    const data = await this.productService.adminListProducts(query);
-    return {
-      data: data.products,
-      message: 'Product fetched',
-      success: true,
-      pagination: data.pagination,
-    };
-  }
-
-  @AuthRoles('admin')
-  @Get('admin/:id/archive')
-  @ApiBearerAuth()
-  async adminArchiveProduct(@Param('id') id: string) {
-    const data = await this.productService.adminArchiveProduct(id);
-    return {
-      data,
-      message: 'Product archived by admin',
-      success: true,
-    };
+  // ── Get Product by Slug ────────────────────────────────────────────────────────────────────
+  @Get(':slug')
+  async getProductBySlug(@Param('slug') slug: string) {
+    const data = await this.productService.getProductBySlug(slug);
+    return { data, message: 'Product fetched', success: true };
   }
 }

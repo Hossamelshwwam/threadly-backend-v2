@@ -2,13 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  HttpException,
+  HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -20,14 +27,53 @@ import {
   UpdateProfileDto,
 } from './dto/user-dto';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
 import type { AuthUser } from 'src/common/types/user.type';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'src/cloudinary/multer.config';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @AuthRoles()
+  @Patch('me/avatar')
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('avatar', multerConfig))
+  async uploadCategoryImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: true,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /image\/(jpeg|png|webp)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @CurrentUser() user: AuthUser,
+  ) {
+    if (!file) {
+      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+    }
+
+    const data = await this.userService.uploadUserImage(user.userId, file);
+    return { data, message: 'Image uploaded', success: true };
+  }
 
   @ApiBearerAuth()
   @AuthRoles()

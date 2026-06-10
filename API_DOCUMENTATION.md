@@ -455,7 +455,24 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 5. Update Product (Seller/Admin)
+### 5. Get My Product by ID (Seller)
+
+- **API URL**: `GET /api/v1/products/me/:id`
+- **Body**: None
+- **Params**:
+  - Header: `Authorization: Bearer <accessToken>`
+  - Path Parameter: `id` (String)
+- **Return**:
+  - **200 OK**:
+    ```json
+    {
+      "success": true,
+      "message": "Product fetched",
+      "data": { ...product }
+    }
+    ```
+
+### 6. Update Product (Seller/Admin)
 
 - **API URL**: `PUT /api/v1/products/me/:id`
 - **Body**:
@@ -480,7 +497,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 6. Archive Product (Seller/Admin)
+### 7. Archive Product (Seller/Admin)
 
 - **API URL**: `DELETE /api/v1/products/me/:id`
 - **Body**: None
@@ -496,7 +513,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 7. Upload Product Images
+### 8. Upload Product Images
 
 - **API URL**: `POST /api/v1/products/me/:id/images`
 - **Body**:
@@ -514,7 +531,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 8. Delete Product Image
+### 9. Delete Product Image
 
 - **API URL**: `DELETE /api/v1/products/me/:id/images`
 - **Body**:
@@ -534,7 +551,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 9. Admin List All Products
+### 10. Admin List All Products
 
 - **API URL**: `GET /api/v1/products/admin`
 - **Body**: None
@@ -552,7 +569,24 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 10. Admin Force Archive
+### 11. Admin Get Product by ID
+
+- **API URL**: `GET /api/v1/products/admin/:id`
+- **Body**: None
+- **Params**:
+  - Header: `Authorization: Bearer <adminToken>`
+  - Path Parameter: `id` (String)
+- **Return**:
+  - **200 OK**:
+    ```json
+    {
+      "success": true,
+      "message": "Product fetched",
+      "data": { ...product }
+    }
+    ```
+
+### 12. Admin Force Archive
 
 - **API URL**: `PATCH /api/v1/products/admin/:id/archive`
 - **Body**: None
@@ -1025,7 +1059,24 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 7. Update Order Item Status (Seller)
+### 7. Get Seller Order Item Detail (Seller)
+
+- **API URL**: `GET /api/v1/orders/seller/items/:id`
+- **Body**: None
+- **Params**:
+  - Header: `Authorization: Bearer <accessToken>`
+  - Path Parameter: `id` (String)
+- **Return**:
+  - **200 OK**:
+    ```json
+    {
+      "success": true,
+      "message": "Order Item fetched successfully",
+      "data": { ...orderItem }
+    }
+    ```
+
+### 8. Update Order Item Status (Seller)
 
 - **API URL**: `PUT /api/v1/orders/seller/items/:itemId/status`
 - **Body**:
@@ -1139,6 +1190,8 @@ This document outlines the available API endpoints for the Threadly backend. It 
 ---
 
 ## Payouts Endpoints
+
+Seller payout endpoints require a seller token, while admin payout endpoints require an admin token.
 
 ### 1. List My Payouts (Seller)
 
@@ -1278,6 +1331,8 @@ This document outlines the available API endpoints for the Threadly backend. It 
 ---
 
 ## Reviews Endpoints
+
+Review submission accepts multipart form data and can include up to 5 images.
 
 ### 1. List Product Reviews (Public)
 
@@ -1514,7 +1569,24 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 2. Update Own Profile
+### 2. Upload Avatar
+
+- **API URL**: `PATCH /api/v1/users/me/avatar`
+- **Body**:
+  - `multipart/form-data` containing key `avatar` (File)
+- **Params**:
+  - Header: `Authorization: Bearer <accessToken>`
+- **Return**:
+  - **200 OK**:
+    ```json
+    {
+      "success": true,
+      "message": "Image uploaded",
+      "data": { ...userProfile }
+    }
+    ```
+
+### 3. Update Own Profile
 
 - **API URL**: `PUT /api/v1/users/me`
 - **Body**:
@@ -1536,7 +1608,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 3. Change Password
+### 4. Change Password
 
 - **API URL**: `PATCH /api/v1/users/me/change-password`
 - **Body**:
@@ -1557,7 +1629,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 4. List Addresses
+### 5. List Addresses
 
 - **API URL**: `GET /api/v1/users/me/addresses`
 - **Body**: None
@@ -1573,7 +1645,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 5. Add Address
+### 6. Add Address
 
 - **API URL**: `POST /api/v1/users/me/addresses`
 - **Body**:
@@ -1600,7 +1672,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 6. Update Address
+### 7. Update Address
 
 - **API URL**: `PUT /api/v1/users/me/addresses/:id`
 - **Body**:
@@ -1624,7 +1696,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 7. Delete Address
+### 8. Delete Address
 
 - **API URL**: `DELETE /api/v1/users/me/addresses/:id`
 - **Body**: None
@@ -1641,7 +1713,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 8. Set Default Address
+### 9. Set Default Address
 
 - **API URL**: `PATCH /api/v1/users/me/addresses/:id/default`
 - **Body**: None
@@ -1658,7 +1730,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 9. Admin List Users
+### 10. Admin List Users
 
 - **API URL**: `GET /api/v1/users/admin`
 - **Body**: None
@@ -1676,7 +1748,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 10. Admin Get User Detail
+### 11. Admin Get User Detail
 
 - **API URL**: `GET /api/v1/users/admin/:id`
 - **Body**: None
@@ -1697,7 +1769,7 @@ This document outlines the available API endpoints for the Threadly backend. It 
     }
     ```
 
-### 11. Admin Suspend/Reactivate User
+### 12. Admin Suspend/Reactivate User
 
 - **API URL**: `PATCH /api/v1/users/admin/:id`
 - **Body**:

@@ -61,6 +61,7 @@ export class InventoryController {
 
   @AuthRoles()
   @Get('/:productId/variants')
+  @ApiBearerAuth()
   async listVariants(@Param('productId') productId: string) {
     const data = await this.inventoryService.listVariants(productId);
     return { data, message: 'Variants fetched', success: true };

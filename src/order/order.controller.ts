@@ -108,6 +108,17 @@ export class OrderController {
 
   @ApiBearerAuth()
   @AuthRoles('seller')
+  @Get('seller/items/:id')
+  async sellerGetOrderItem(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUser,
+  ) {
+    const data = await this.orderService.sellerGetOrderItem(id, user.userId);
+    return { success: true, data, message: 'Order Item fetched successfully' };
+  }
+
+  @ApiBearerAuth()
+  @AuthRoles('seller')
   @Put('seller/items/:itemId/status')
   async updateOrderItemStatus(
     @CurrentUser() user: AuthUser,

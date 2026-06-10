@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, Connection } from 'mongoose';
+import mongoose, { Model, Connection, Types } from 'mongoose';
 import { OrderDocument } from './schema/order.schema';
 import { UserDocument } from '../user/schema/user.schema';
 import { SellerDocument } from '../seller/schema/seller.schema';
@@ -64,21 +64,34 @@ export class OrderService {
     const order = await this.orderModel.findById(orderId).session(session);
     if (!order) return;
 
-    const items = await this.orderItemModel.find({ orderId }).session(session);
+    const items = await this.orderItemModel
+      .find({ orderId: new Types.ObjectId(orderId) })
+      .session(session);
     const statuses = items.map((i) => i.status);
 
     let newStatus: string = order.status;
 
-    if (statuses.every((s) => s === 'cancelled')) {
+    const activeStatuses = statuses.filter((s) => s !== 'cancelled');
+
+    if (activeStatuses.length === 0 && statuses.length > 0) {
+      // Every single item was cancelled
       newStatus = 'cancelled';
-    } else if (statuses.every((s) => s === 'delivered')) {
+    } else if (activeStatuses.every((s) => s === 'delivered')) {
+      // All non-cancelled items are delivered
       newStatus = 'delivered';
-    } else if (statuses.every((s) => s === 'shipped' || s === 'delivered')) {
+    } else if (
+      activeStatuses.every((s) => s === 'shipped' || s === 'delivered')
+    ) {
+      // All non-cancelled items are at least shipped
       newStatus = 'shipped';
-    } else if (statuses.some((s) => s === 'shipped' || s === 'delivered')) {
+    } else if (
+      activeStatuses.some((s) => s === 'shipped' || s === 'delivered')
+    ) {
       newStatus = 'partially_shipped';
-    } else if (statuses.some((s) => s === 'processing')) {
+    } else if (activeStatuses.some((s) => s === 'processing')) {
       newStatus = 'confirmed';
+    } else {
+      newStatus = 'pending'; // Fallback if everything active is pending
     }
 
     if (newStatus !== order.status) {
@@ -101,13 +114,63 @@ export class OrderService {
       const allItems = await this.orderItemModel
         .find({ orderId: order._id })
         .session(session);
-      const allDelivered = allItems.every((i) => i.status === 'delivered');
+      const activeItems = allItems.filter((i) => i.status !== 'cancelled');
+      const allActiveDelivered =
+        activeItems.length > 0 &&
+        activeItems.every((i) => i.status === 'delivered');
 
-      if (allDelivered) {
+      if (allActiveDelivered) {
         order.paymentStatus = 'paid';
         await order.save({ session });
       }
     }
+  }
+
+  // ── Handle item cancellation side effects ──────────────────────────────────────
+  private async handleCancellation(
+    item: OrderItemDocument,
+    session: mongoose.ClientSession,
+  ) {
+    const order = await this.orderModel.findById(item.orderId).session(session);
+    if (!order) return;
+
+    // 1. Deduct the cancelled item's total from the order's financial records
+    order.subtotal -= item.total;
+    order.total -= item.total; // You might also need to adjust shipping fees here if they are dynamic
+
+    // 2. Prevent negative totals just in case of rounding errors
+    if (order.subtotal <= 0) order.subtotal = 0;
+    if (order.total <= 0) order.total = 0;
+
+    // 3. Handle Payment Status depending on the payment method
+    if (order.paymentMethod === 'cash_on_delivery') {
+      // If COD, we just adjusted the total. The driver will collect the new, lower amount.
+      if (order.total === 0) {
+        order.paymentStatus = 'unpaid'; // Or leave as unpaid since it's cancelled
+      }
+    } else if (order.paymentStatus === 'paid') {
+      // If paid via Credit Card, you owe the customer a refund for this specific item!
+      // TODO: Trigger your payment gateway API here to issue a partial refund for `item.total`
+
+      // If all items are cancelled, mark as fully refunded. Otherwise, you might want a 'partially_refunded' state.
+      const allItems = await this.orderItemModel
+        .find({ orderId: order._id })
+        .session(session);
+      const allCancelled = allItems.every((i) => i.status === 'cancelled');
+
+      if (allCancelled) {
+        order.paymentStatus = 'unpaid';
+      }
+    }
+
+    await order.save({ session });
+
+    // 4. (Optional) Return inventory stock if you reserved it previously
+    await this.inventoryModel.findByIdAndUpdate(
+      item.inventoryId,
+      { $inc: { stock: item.quantity, reserved: -item.quantity } },
+      { session },
+    );
   }
 
   // ── Handle item delivery side effects ─────────────────────────────────────────
@@ -160,7 +223,7 @@ export class OrderService {
     session: mongoose.ClientSession,
   ) {
     const allowed = STATUS_TRANSITIONS[item.status] ?? [];
-    if (!allowed.includes(input.status)) {
+    if (!allowed.includes(input.status) && input.status !== item.status) {
       throw new BadRequestException(
         `Cannot transition from "${item.status}" to "${input.status}"`,
       );
@@ -177,6 +240,8 @@ export class OrderService {
         { $inc: { reserved: -item.quantity } },
         { session },
       );
+
+      await this.handleCancellation(item, session);
     }
 
     if (input.status === 'delivered' && previousStatus !== 'delivered') {
@@ -493,6 +558,12 @@ export class OrderService {
 
     const filter: Record<string, unknown> = { sellerId: seller._id };
     if (query.status) filter.status = query.status;
+    if (query.from || query.to) {
+      filter.createdAt = {
+        ...(query.from && { $gte: new Date(query.from) }),
+        ...(query.to && { $lte: new Date(query.to) }),
+      };
+    }
 
     const [items, total] = await Promise.all([
       this.orderItemModel
@@ -516,6 +587,21 @@ export class OrderService {
         limit,
       ),
     };
+  }
+
+  async sellerGetOrderItem(itemId: string, userId: string) {
+    const seller = await this.sellerModel.findOne({ userId });
+
+    if (!seller) throw new NotFoundException('Seller not found');
+
+    const item = await this.orderItemModel
+      .findById({ _id: itemId, sellerId: seller._id })
+      .populate(
+        'orderId',
+        'orderNumber shippingAddress paymentMethod paymentStatus createdAt',
+      )
+      .populate('productId', 'name slug images');
+    return item;
   }
 
   // ── Seller: update order item status ─────────────────────────────────────────

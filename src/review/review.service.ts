@@ -66,6 +66,8 @@ export class ReviewService {
       throw new ForbiddenException('Forbidden');
     }
 
+    console.log(orderItem);
+
     if (orderItem.status !== 'delivered') {
       throw new BadRequestException(
         'You can only review items that have been delivered',
@@ -111,7 +113,9 @@ export class ReviewService {
       query.limit,
     );
 
-    const filter: Record<string, unknown> = { productId };
+    const filter: Record<string, unknown> = {
+      productId: new Types.ObjectId(productId),
+    };
     if (query.rating) filter.rating = query.rating;
 
     const sortMap: Record<string, { [key: string]: SortOrder }> = {
@@ -125,12 +129,14 @@ export class ReviewService {
     const [reviews, total] = await Promise.all([
       this.reviewModel
         .find(filter)
-        .populate('buyerId', 'name')
+        .populate('buyerId', 'name email')
         .sort(sort)
         .skip(skip)
         .limit(limit),
       this.reviewModel.countDocuments(filter),
     ]);
+
+    console.log(reviews);
 
     const breakdown = await this.reviewModel.aggregate([
       { $match: { productId: new Types.ObjectId(productId) } },
@@ -150,15 +156,17 @@ export class ReviewService {
     }
 
     return {
-      reviews,
+      data: {
+        reviews,
+        ratingBreakdown,
+        averageRating: product.rating,
+        totalReviews: product.reviewCount,
+      },
       pagination: this.paginationService.buildPaginationMeta(
         total,
         page,
         limit,
       ),
-      ratingBreakdown,
-      averageRating: product.rating,
-      totalReviews: product.reviewCount,
     };
   }
 

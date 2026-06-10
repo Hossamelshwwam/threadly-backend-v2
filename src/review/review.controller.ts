@@ -28,7 +28,12 @@ export class ReviewController {
     @Query() query: ListReviewsQueryDto,
   ) {
     const data = await this.reviewService.listProductReviews(productId, query);
-    return { success: true, data, message: 'Reviews fetched successfully' };
+    return {
+      success: true,
+      data: data.data,
+      message: 'Reviews fetched successfully',
+      pagination: data.pagination,
+    };
   }
 
   @Get(':id')

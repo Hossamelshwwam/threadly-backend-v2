@@ -23,7 +23,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 export class SellerService {
   constructor(
     @InjectModel('Seller')
-    private readonly sellerProfileModel: Model<SellerDocument>,
+    private readonly sellerModel: Model<SellerDocument>,
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
     private readonly paginationService: PaginationService,
     private readonly cloudinaryService: CloudinaryService,
@@ -72,12 +72,12 @@ export class SellerService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
-    const existing = await this.sellerProfileModel.findOne({ userId });
+    const existing = await this.sellerModel.findOne({ userId });
     if (existing)
       throw new ConflictException('You already have a store registered');
 
     let slug = this.slugService.slugify(input.storeName);
-    const slugExists = await this.sellerProfileModel.findOne({
+    const slugExists = await this.sellerModel.findOne({
       storeSlug: slug,
     });
     if (slugExists) {
@@ -87,7 +87,7 @@ export class SellerService {
       );
     }
 
-    const seller = await this.sellerProfileModel.create({
+    const seller = await this.sellerModel.create({
       userId,
       storeName: input.storeName,
       storeSlug: slug,
@@ -108,7 +108,7 @@ export class SellerService {
 
   // ── Get own profile ───────────────────────────────────────────────────────────
   async getMySellerProfile(userId: string) {
-    const seller = await this.sellerProfileModel
+    const seller = await this.sellerModel
       .findOne({ userId })
       .populate('userId', 'name email phone');
     if (!seller) throw new NotFoundException('Seller profile not found');
@@ -117,14 +117,14 @@ export class SellerService {
 
   // ── Update own profile ────────────────────────────────────────────────────────
   async updateSellerProfile(userId: string, input: UpdateSellerDto) {
-    const seller = await this.sellerProfileModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({ userId });
     if (!seller) throw new NotFoundException('Seller profile not found');
     if (seller.status === 'suspended')
       throw new ForbiddenException('Your store is suspended');
 
     if (input.storeName) {
       let slug = this.slugService.slugify(input.storeName);
-      const slugExists = await this.sellerProfileModel.findOne({
+      const slugExists = await this.sellerModel.findOne({
         storeSlug: slug,
         _id: { $ne: seller._id },
       });
@@ -155,7 +155,7 @@ export class SellerService {
 
   // ── Upload logo ───────────────────────────────────────────────────────────────
   async uploadSellerLogo(userId: string, buffer: Buffer) {
-    const seller = await this.sellerProfileModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({ userId });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const newLogo = await this.cloudinaryService.uploadFile(buffer, 'logos');
@@ -172,7 +172,7 @@ export class SellerService {
 
   // ── Upload banner ─────────────────────────────────────────────────────────────
   async uploadSellerBanner(userId: string, buffer: Buffer) {
-    const seller = await this.sellerProfileModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({ userId });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const newBanner = await this.cloudinaryService.uploadFile(
@@ -192,7 +192,7 @@ export class SellerService {
 
   // ── Public storefront ─────────────────────────────────────────────────────────
   async getPublicStorefront(slug: string) {
-    const seller = await this.sellerProfileModel
+    const seller = await this.sellerModel
       .findOne({ storeSlug: slug, status: 'approved' })
       .populate('userId', 'name')
       .select('-bankDetails -adminNote');
@@ -211,13 +211,13 @@ export class SellerService {
     if (query.status) filter.status = query.status;
 
     const [sellers, total] = await Promise.all([
-      this.sellerProfileModel
+      this.sellerModel
         .find(filter)
         .populate('userId', 'name email phone createdAt')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      this.sellerProfileModel.countDocuments(filter),
+      this.sellerModel.countDocuments(filter),
     ]);
 
     return {
@@ -232,7 +232,7 @@ export class SellerService {
 
   // ── Admin: get single seller ──────────────────────────────────────────────────
   async adminGetSeller(sellerId: string) {
-    const seller = await this.sellerProfileModel
+    const seller = await this.sellerModel
       .findById(sellerId)
       .populate('userId', 'name email phone createdAt');
     if (!seller) throw new NotFoundException('Seller not found');
@@ -244,7 +244,7 @@ export class SellerService {
     sellerId: string,
     input: AdminUpdateSellerStatusDto,
   ) {
-    const seller = await this.sellerProfileModel
+    const seller = await this.sellerModel
       .findById(sellerId)
       .populate('userId', 'name email');
     if (!seller) throw new NotFoundException('Seller not found');

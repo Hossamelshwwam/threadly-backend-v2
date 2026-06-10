@@ -48,7 +48,12 @@ export class PayoutController {
   @Get('admin')
   async adminListPayouts(@Query() query: ListPayoutsQueryDto) {
     const data = await this.payoutService.adminListPayouts(query);
-    return { success: true, data, message: 'Payouts fetched successfully' };
+    return {
+      success: true,
+      data: { payouts: data.payouts, summary: data.summary },
+      message: 'Payouts fetched successfully',
+      pagination: data.pagination,
+    };
   }
 
   @ApiBearerAuth()

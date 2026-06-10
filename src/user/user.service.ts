@@ -18,6 +18,7 @@ import {
 } from './dto/user-dto';
 import { PaginationService } from 'src/common/services/pagination.service';
 import { OrderDocument } from 'src/order/schema/order.schema';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
@@ -25,6 +26,7 @@ export class UserService {
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
     @InjectModel('Order') private readonly orderModel: Model<OrderDocument>,
     private readonly paginationService: PaginationService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   comparePassword(plain: string, passwordHash: string): Promise<boolean> {
@@ -59,6 +61,23 @@ export class UserService {
 
     await user.save();
     return user;
+  }
+
+  async uploadUserImage(userId: string, file: Express.Multer.File) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('Category not found');
+
+    if (user.avatar)
+      await this.cloudinaryService.deleteFile(user.avatar).catch(() => null);
+
+    const image = await this.cloudinaryService.uploadFile(
+      file.buffer,
+      'categories',
+    );
+    user.avatar = image.secure_url;
+
+    await user.save();
+    return { user };
   }
 
   // ── Change password ───────────────────────────────────────────────────────────

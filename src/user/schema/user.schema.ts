@@ -27,6 +27,9 @@ export class User {
   })
   email: string;
 
+  @Prop({ type: String, trim: true })
+  avatar?: string;
+
   @Prop({ type: String, required: true, select: false })
   passwordHash: string;
 

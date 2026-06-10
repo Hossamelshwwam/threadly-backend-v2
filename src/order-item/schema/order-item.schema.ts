@@ -28,7 +28,7 @@ export class OrderItem {
 
   @Prop({
     type: Types.ObjectId,
-    ref: 'SellerProfile',
+    ref: 'Seller',
     required: false,
     default: null,
   })

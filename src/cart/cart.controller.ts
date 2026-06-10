@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import type { AuthUser } from 'src/common/types/user.type';
@@ -19,7 +27,7 @@ export class CartController {
   }
 
   @AuthRoles()
-  @Get('items')
+  @Post('items')
   @ApiBearerAuth()
   async addToCart(@CurrentUser() user: AuthUser, @Body() body: AddToCartDto) {
     const data = await this.cartService.addToCart(user.userId, body);
