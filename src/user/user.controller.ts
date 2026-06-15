@@ -14,7 +14,6 @@ import {
   Put,
   Query,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -26,7 +25,6 @@ import {
   UpdateAdminDto,
   UpdateProfileDto,
 } from './dto/user-dto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
 import type { AuthUser } from 'src/common/types/user.type';
@@ -89,7 +87,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @Put('me')
-  @UseGuards(AuthGuard)
+  @AuthRoles()
   async updateMe(
     @CurrentUser() user: AuthUser,
     @Body() body: UpdateProfileDto,
@@ -104,7 +102,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @Patch('me/change-password')
-  @UseGuards(AuthGuard)
+  @AuthRoles()
   async changePassword(
     @CurrentUser() user: AuthUser,
     @Body() body: ChangePasswordDto,
@@ -119,7 +117,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get('me/addresses')
-  @UseGuards(AuthGuard)
+  @AuthRoles()
   async listAddresses(@CurrentUser() user: AuthUser) {
     const data = await this.userService.listAddresses(user.userId);
     return {
@@ -129,6 +127,7 @@ export class UserController {
     };
   }
 
+  @AuthRoles()
   @ApiBearerAuth()
   @Post('me/addresses')
   async addAddress(@CurrentUser() user: AuthUser, @Body() body: AddAddressDto) {
@@ -136,6 +135,7 @@ export class UserController {
     return { success: true, data, message: 'Address added successfully' };
   }
 
+  @AuthRoles()
   @ApiBearerAuth()
   @Put('me/addresses/:id')
   async updateAddress(
@@ -146,14 +146,14 @@ export class UserController {
     const data = await this.userService.updateAddress(user.userId, id, body);
     return { success: true, data, message: 'Address updated successfully' };
   }
-
+  @AuthRoles()
   @ApiBearerAuth()
   @Delete('me/addresses/:id')
   async deleteAddress(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     const data = await this.userService.deleteAddress(user.userId, id);
     return { success: true, data, message: 'Address deleted successfully' };
   }
-
+  @AuthRoles()
   @ApiBearerAuth()
   @Patch('me/addresses/:id/default')
   async setDefaultAddress(

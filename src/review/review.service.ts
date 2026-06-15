@@ -66,8 +66,6 @@ export class ReviewService {
       throw new ForbiddenException('Forbidden');
     }
 
-    console.log(orderItem);
-
     if (orderItem.status !== 'delivered') {
       throw new BadRequestException(
         'You can only review items that have been delivered',
@@ -135,8 +133,6 @@ export class ReviewService {
         .limit(limit),
       this.reviewModel.countDocuments(filter),
     ]);
-
-    console.log(reviews);
 
     const breakdown = await this.reviewModel.aggregate([
       { $match: { productId: new Types.ObjectId(productId) } },

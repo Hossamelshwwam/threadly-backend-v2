@@ -22,6 +22,7 @@ import {
   OrderItem,
   OrderItemDocument,
 } from 'src/order-item/schema/order-item.schema';
+import { Address } from 'src/user/schema/address.schema';
 
 const STATUS_TRANSITIONS: Record<string, string[]> = {
   pending: ['processing', 'cancelled'],
@@ -254,7 +255,7 @@ export class OrderService {
   // ── Resolve shipping address ───────────────────────────────────────────────
   private async resolveShippingAddress(
     userId: string,
-    shippingInput: PlaceOrderDto['shippingAddress'],
+    addressId: string,
     session: mongoose.ClientSession,
   ) {
     const user = await this.userModel
@@ -263,58 +264,21 @@ export class OrderService {
       .session(session);
     if (!user) throw new NotFoundException('User not found');
 
-    if (shippingInput.addressId) {
-      const existingAddress = user.addresses.find(
-        (a: any) => a._id?.toString() === shippingInput.addressId,
-      );
-      if (!existingAddress) throw new NotFoundException('Address not found');
+    const existingAddress = user.addresses.find(
+      (a: Address) => a._id?.toString() === addressId,
+    );
 
-      return {
-        fullName: user.name,
-        street: existingAddress.street,
-        city: existingAddress.city,
-        state: existingAddress.state,
-        postalCode: existingAddress.postalCode,
-        country: existingAddress.country,
-        phone: user.phone,
-      };
-    }
+    if (!existingAddress) throw new NotFoundException('Address not found');
 
-    if (shippingInput.newAddress) {
-      const newAddress = shippingInput.newAddress;
-      const finalShippingAddress = {
-        fullName: newAddress.fullName,
-        street: newAddress.street,
-        city: newAddress.city,
-        state: newAddress.state,
-        postalCode: newAddress.postalCode,
-        country: newAddress.country,
-        phone: newAddress.phone,
-      };
-
-      if (newAddress.saveToAddresses) {
-        if (newAddress.isDefault) {
-          user.addresses.forEach((a: any) => {
-            a.isDefault = false;
-          });
-        }
-        user.addresses.push({
-          label: newAddress.label || 'Home',
-          street: newAddress.street,
-          city: newAddress.city,
-          state: newAddress.state,
-          postalCode: newAddress.postalCode,
-          country: newAddress.country,
-          isDefault: newAddress.isDefault || user.addresses.length === 0,
-        });
-
-        await user.save({ session });
-      }
-
-      return finalShippingAddress;
-    }
-
-    throw new BadRequestException('Shipping address is required');
+    return {
+      fullName: user.name,
+      street: existingAddress.street,
+      city: existingAddress.city,
+      state: existingAddress.state,
+      postalCode: existingAddress.postalCode,
+      country: existingAddress.country,
+      phonenumber: existingAddress.phonenumber,
+    };
   }
 
   // ── Place order ───────────────────────────────────────────────────────────────
@@ -332,7 +296,7 @@ export class OrderService {
     try {
       const shippingAddress = await this.resolveShippingAddress(
         userId,
-        input.shippingAddress,
+        input.addressId,
         session,
       );
       const orderItemsData: any[] = [];

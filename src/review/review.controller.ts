@@ -36,12 +36,6 @@ export class ReviewController {
     };
   }
 
-  @Get(':id')
-  async getReview(@Param('id') id: string) {
-    const data = await this.reviewService.getReview(id);
-    return { success: true, data, message: 'Review fetched successfully' };
-  }
-
   // ── Seller ────────────────────────────────────────────────────────────────────
   @AuthRoles('seller')
   @Get('seller')
@@ -57,6 +51,12 @@ export class ReviewController {
       pagination: data.pagination,
       message: 'Reviews fetched successfully',
     };
+  }
+
+  @Get(':id')
+  async getReview(@Param('id') id: string) {
+    const data = await this.reviewService.getReview(id);
+    return { success: true, data, message: 'Review fetched successfully' };
   }
 
   // ── Buyer ─────────────────────────────────────────────────────────────────────

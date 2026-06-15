@@ -120,10 +120,12 @@ export class InventoryService {
     const product = await this.productModel.findById(productId);
     if (!product) throw new NotFoundException('Product not found');
 
-    const variants = await this.inventoryModel.find({ productId }).sort({
-      size: 1,
-      color: 1,
-    });
+    const variants = await this.inventoryModel
+      .find({ productId: product._id })
+      .sort({
+        size: 1,
+        color: 1,
+      });
     return variants;
   }
 

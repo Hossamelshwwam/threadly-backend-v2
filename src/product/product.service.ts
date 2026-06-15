@@ -243,7 +243,7 @@ export class ProductService {
     // Base filter — public sees only active
     const filter: Record<string, unknown> = { status: 'active' };
 
-    if (query.category) filter.categoryId = query.category;
+    if (query.category) filter.categoryId = new Types.ObjectId(query.category);
     if (query.seller) filter.sellerId = query.seller;
     if (query.rating) filter.rating = { $gte: query.rating };
     if (query.minPrice !== undefined || query.maxPrice !== undefined) {

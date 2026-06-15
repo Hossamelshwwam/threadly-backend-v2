@@ -28,7 +28,7 @@ export class ShippingAddress {
   @Prop({ type: String, required: true })
   country: string;
   @Prop({ type: String })
-  phone: string;
+  phonenumber: string;
 }
 
 export const ShippingAddressSchema =

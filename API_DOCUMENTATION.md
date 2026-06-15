@@ -933,24 +933,10 @@ This document outlines the available API endpoints for the Threadly backend. It 
   ```json
   {
     "paymentMethod": "cash_on_delivery",
-    "shippingAddress": {
-      "addressId": "64a1f...",
-      "newAddress": {
-        "label": "Home",
-        "fullName": "Hossam Ali",
-        "street": "12 Tahrir Square",
-        "city": "Cairo",
-        "state": "Cairo Governorate",
-        "postalCode": "11511",
-        "country": "Egypt",
-        "phone": "+201001234567",
-        "saveToAddresses": true,
-        "isDefault": true
-      }
-    }
+    "addressId": "64a1f..."
   }
   ```
-  _(Note: Either `addressId` or `newAddress` must be provided inside `shippingAddress`)_
+  _(The order uses an existing saved address ID. Pass the address ID from your user addresses list.)_
 - **Params**:
   - Header: `Authorization: Bearer <accessToken>`
 - **Enum**:
@@ -1657,6 +1643,7 @@ Review submission accepts multipart form data and can include up to 5 images.
     "state": "Cairo Governorate",
     "postalCode": "11511",
     "country": "Egypt",
+    "phonenumber": "+201001234567",
     "isDefault": false
   }
   ```
@@ -1679,6 +1666,7 @@ Review submission accepts multipart form data and can include up to 5 images.
   ```json
   {
     "label": "Work",
+    "phonenumber": "+201001234567",
     "isDefault": true
   }
   ```

@@ -25,6 +25,9 @@ export class Address {
 
   @Prop({ type: Boolean, default: false })
   isDefault: boolean;
+
+  @Prop({ type: String, trim: true })
+  phonenumber: string;
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address);

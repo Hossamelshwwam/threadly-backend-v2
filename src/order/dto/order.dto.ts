@@ -1,31 +1,9 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
-const shippingAddressSchema = z
-  .object({
-    addressId: z.string().optional(),
-    newAddress: z
-      .object({
-        label: z.string().min(1).max(50).optional(),
-        fullName: z.string().min(2).max(100),
-        street: z.string().min(2).max(200),
-        city: z.string().min(2).max(100),
-        state: z.string().optional(),
-        postalCode: z.string().min(2).max(20),
-        country: z.string().min(2).max(100),
-        phone: z.string().optional(),
-        saveToAddresses: z.boolean().default(false),
-        isDefault: z.boolean().default(false),
-      })
-      .optional(),
-  })
-  .refine((data) => data.addressId || data.newAddress, {
-    message: 'Either addressId or newAddress is required',
-  });
-
 export const placeOrderSchema = z.object({
   paymentMethod: z.enum(['credit_card', 'cash_on_delivery']),
-  shippingAddress: shippingAddressSchema,
+  addressId: z.string().nonempty({ message: 'Address is required' }),
 });
 
 export class PlaceOrderDto extends createZodDto(placeOrderSchema) {}

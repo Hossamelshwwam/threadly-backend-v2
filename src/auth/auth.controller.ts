@@ -8,7 +8,7 @@ import {
   ResetPasswordDto,
   SendVerificationEmailDto,
 } from './dto/auth.dto';
-import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -85,7 +85,6 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @ApiBearerAuth()
   async refreshToken(@Body() body: RefreshTokenDto) {
     const data = await this.authService.refreshAccessToken(body.refreshToken);
     return {

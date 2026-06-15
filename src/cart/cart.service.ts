@@ -75,7 +75,7 @@ export class CartService {
       (sum, item) => sum + item.priceSnapshot * item.quantity,
       0,
     );
-    const itemCount = validItems.reduce((sum, item) => sum + item.quantity, 0);
+    const itemCount = cart.items.length;
 
     return { items: validItems, total, itemCount };
   }

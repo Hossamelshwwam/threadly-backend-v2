@@ -26,6 +26,7 @@ export const addAddressSchema = z.object({
   state: z.string().optional(),
   postalCode: z.string().min(2).max(20),
   country: z.string().min(2).max(100),
+  phonenumber: z.string().min(5).max(20),
   isDefault: z.boolean().default(false),
 });
 
