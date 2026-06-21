@@ -1,23 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express, { Request, Response } from 'express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-const server = express();
-
-let isReady = false;
-
-const bootstrap = async () => {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
   app.enableCors({
     origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:3001',
-      'https://threadly-website.vercel.app',
+      'http://localhost:3000/',
+      'http://localhost:5173/',
+      'http://localhost:3001/',
+      'https://threadly-website.vercel.app/',
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -32,14 +26,16 @@ const bootstrap = async () => {
 
   app.useGlobalPipes(new ZodValidationPipe());
 
-  await app.init();
-  isReady = true;
-};
+  const config = new DocumentBuilder()
+    .setTitle('Threadly')
+    .setDescription('Threadly description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
 
-const bootstrapPromise = bootstrap();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document);
 
-// This is what Vercel actually calls
-export default async (req: Request, res: Response) => {
-  if (!isReady) await bootstrapPromise;
-  server(req, res);
-};
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
