@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 // import { UserModule } from './user/user.module';
-// import { MongooseModule } from '@nestjs/mongoose';
-// import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { AuthModule } from './auth/auth.module';
 // import { MailerModule } from '@nestjs-modules/mailer';
 // import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
@@ -22,14 +22,14 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     // UserModule,
-    // ConfigModule.forRoot({ isGlobal: true }),
-    // MongooseModule.forRootAsync({
-    //   useFactory: (config: ConfigService) => ({
-    //     uri: config.get<string>('MONGO_URI'),
-    //     dbName: config.get<string>('MONGO_DB_NAME'),
-    //   }),
-    //   inject: [ConfigService],
-    // }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRootAsync({
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('MONGO_URI'),
+        dbName: config.get<string>('MONGO_DB_NAME'),
+      }),
+      inject: [ConfigService],
+    }),
     // MailerModule.forRootAsync({
     //   inject: [ConfigService],
     //   useFactory: (config: ConfigService) => ({
