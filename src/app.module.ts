@@ -18,7 +18,6 @@ import { CartModule } from './cart/cart.module';
 import { ReviewModule } from './review/review.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SharedModule } from './common/module/shared.module';
-import { PagesModule } from './pages/pages.module';
 
 @Module({
   imports: [
@@ -61,7 +60,6 @@ import { PagesModule } from './pages/pages.module';
     ReviewModule,
     CloudinaryModule,
     SharedModule,
-    PagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

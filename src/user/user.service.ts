@@ -47,6 +47,10 @@ export class UserService {
     return { token, hashedToken, passwordResetExpiry };
   }
 
+  async hashPassword(password: string) {
+    return bcrypt.hash(password, 12);
+  }
+
   async getMyProfile(userId: string) {
     return await this.userModel.findById(userId).select('-password');
   }
@@ -91,7 +95,9 @@ export class UserService {
     );
     if (!valid) throw new NotFoundException('Current password is incorrect');
 
-    user.passwordHash = body.newPassword; // pre-save hook hashes it
+    const hashPassword = await this.hashPassword(body.newPassword);
+
+    user.passwordHash = hashPassword;
     await user.save();
   }
 
