@@ -26,6 +26,7 @@ import { SharedModule } from './common/module/shared.module';
     MongooseModule.forRootAsync({
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('MONGO_URI'),
+        dbName: config.get<string>('MONGO_DB_NAME'),
       }),
       inject: [ConfigService],
     }),
@@ -57,11 +58,11 @@ import { SharedModule } from './common/module/shared.module';
     CategoryModule,
     InventoryModule,
     CartModule,
-    ReviewModule,
     CloudinaryModule,
+    ReviewModule,
     SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

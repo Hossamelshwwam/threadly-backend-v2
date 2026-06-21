@@ -25,7 +25,7 @@ export class InventoryService {
     private readonly productModel: Model<ProductDocument>,
     @InjectModel('Seller')
     private readonly sellerModel: Model<SellerDocument>,
-  ) {}
+  ) { }
 
   // ── helpers ───────────────────────────────────────────────────────────────────
   private async assertSellerOwnsProduct(
@@ -58,7 +58,7 @@ export class InventoryService {
     productId: string,
     body: CreateVariantDto,
   ) {
-    await this.assertSellerOwnsProduct(userId, role, productId);
+    const { product } = await this.assertSellerOwnsProduct(userId, role, productId);
 
     const existing = await this.inventoryModel.findOne({
       productId,
@@ -75,7 +75,7 @@ export class InventoryService {
     });
     if (skuTaken) throw new ConflictException('SKU already in use');
 
-    const variant = await this.inventoryModel.create({ productId, ...body });
+    const variant = await this.inventoryModel.create({ productId: product._id, ...body });
     return variant;
   }
 
@@ -163,6 +163,7 @@ export class InventoryService {
       if (body.color) variant.color = body.color;
     }
 
+    if (body.sku) variant.sku = body.sku;
     if (body.stock !== undefined) variant.stock = body.stock;
     if (body.price !== undefined) variant.price = body.price;
 
