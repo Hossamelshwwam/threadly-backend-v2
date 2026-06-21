@@ -9,6 +9,9 @@ async function bootstrap() {
   app.enableCors({
     origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001', "threadly-website.vercel.app"],
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+
   });
 
   app.useGlobalPipes(new ZodValidationPipe());
