@@ -14,14 +14,6 @@ async function bootstrap() {
       'https://threadly-website.vercel.app/',
     ],
     credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-    ],
   });
 
   app.useGlobalPipes(new ZodValidationPipe());
