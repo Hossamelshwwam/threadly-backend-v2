@@ -1,12 +1,17 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  //  Get, Param,
+  Post,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
-  ForgotPasswordDto,
+  // ForgotPasswordDto,
   LoginDto,
-  RefreshTokenDto,
+  // RefreshTokenDto,
   RegisterDto,
-  ResetPasswordDto,
-  SendVerificationEmailDto,
+  // ResetPasswordDto,
+  // SendVerificationEmailDto,
 } from './dto/auth.dto';
 import { ApiBody } from '@nestjs/swagger';
 
@@ -44,54 +49,54 @@ export class AuthController {
     };
   }
 
-  @Get('verify-email/:token')
-  async verifyEmail(@Param('token') token: string) {
-    await this.authService.verifyEmail(token);
-    return {
-      success: true,
-      statusCode: 200,
-      message: 'Email verified successfully. You can now log in.',
-    };
-  }
+  // @Get('verify-email/:token')
+  // async verifyEmail(@Param('token') token: string) {
+  //   await this.authService.verifyEmail(token);
+  //   return {
+  //     success: true,
+  //     statusCode: 200,
+  //     message: 'Email verified successfully. You can now log in.',
+  //   };
+  // }
 
-  @Post('send-verification-email')
-  async sendVerificationEmail(@Body() body: SendVerificationEmailDto) {
-    await this.authService.sendVerificationEmailAgain(body.email);
-    return {
-      success: true,
-      statusCode: 200,
-      message: 'Verification email sent. Please check your email.',
-    };
-  }
+  // @Post('send-verification-email')
+  // async sendVerificationEmail(@Body() body: SendVerificationEmailDto) {
+  //   await this.authService.sendVerificationEmailAgain(body.email);
+  //   return {
+  //     success: true,
+  //     statusCode: 200,
+  //     message: 'Verification email sent. Please check your email.',
+  //   };
+  // }
 
-  @Post('forgot-password')
-  async forgotPassword(@Body() body: ForgotPasswordDto) {
-    await this.authService.forgotPassword(body.email);
-    return {
-      success: true,
-      statusCode: 200,
-      message: 'Password reset link sent. Please check your email.',
-    };
-  }
+  // @Post('forgot-password')
+  // async forgotPassword(@Body() body: ForgotPasswordDto) {
+  //   await this.authService.forgotPassword(body.email);
+  //   return {
+  //     success: true,
+  //     statusCode: 200,
+  //     message: 'Password reset link sent. Please check your email.',
+  //   };
+  // }
 
-  @Post('reset-password')
-  async resetPassword(@Body() body: ResetPasswordDto) {
-    await this.authService.resetPassword(body.token, body.password);
-    return {
-      success: true,
-      statusCode: 200,
-      message: 'Password reset successfully. You can now log in.',
-    };
-  }
+  // @Post('reset-password')
+  // async resetPassword(@Body() body: ResetPasswordDto) {
+  //   await this.authService.resetPassword(body.token, body.password);
+  //   return {
+  //     success: true,
+  //     statusCode: 200,
+  //     message: 'Password reset successfully. You can now log in.',
+  //   };
+  // }
 
-  @Post('refresh')
-  async refreshToken(@Body() body: RefreshTokenDto) {
-    const data = await this.authService.refreshAccessToken(body.refreshToken);
-    return {
-      success: true,
-      statusCode: 200,
-      message: 'Token refreshed successfully.',
-      data,
-    };
-  }
+  // @Post('refresh')
+  // async refreshToken(@Body() body: RefreshTokenDto) {
+  //   const data = await this.authService.refreshAccessToken(body.refreshToken);
+  //   return {
+  //     success: true,
+  //     statusCode: 200,
+  //     message: 'Token refreshed successfully.',
+  //     data,
+  //   };
+  // }
 }
