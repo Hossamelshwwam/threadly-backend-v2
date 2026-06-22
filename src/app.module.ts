@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 // import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 // import { OrderModule } from './order/order.module';
@@ -50,7 +50,7 @@ import { TestModule } from './test/test.module';
         },
       }),
     }),
-    // AuthModule,
+    AuthModule,
     // OrderModule,
     // SellerModule,
     // PayoutModule,
