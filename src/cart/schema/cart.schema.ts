@@ -42,7 +42,6 @@ export class Cart {
     type: Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true,
   })
   userId: Types.ObjectId;
 

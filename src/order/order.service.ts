@@ -284,7 +284,7 @@ export class OrderService {
   // ── Place order ───────────────────────────────────────────────────────────────
   async placeOrder(userId: string, input: PlaceOrderDto) {
     const cart = await this.cartModel
-      .findOne({ userId })
+      .findOne({ userId: new Types.ObjectId(userId) })
       .populate('items.inventoryId');
     if (!cart || cart.items.length === 0)
       throw new BadRequestException('Your cart is empty');

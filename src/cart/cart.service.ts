@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CartDocument } from './schema/cart.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ProductDocument } from '../product/schema/product.schema';
 
 import { InventoryDocument } from '../inventory/schema/inventory.schema';
@@ -24,8 +24,14 @@ export class CartService {
 
   // ── helpers ───────────────────────────────────────────────────────────────────
   private async getOrCreateCart(userId: string) {
-    let cart = await this.cartModel.findOne({ userId });
-    if (!cart) cart = await this.cartModel.create({ userId, items: [] });
+    let cart = await this.cartModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
+    if (!cart)
+      cart = await this.cartModel.create({
+        userId: new Types.ObjectId(userId),
+        items: [],
+      });
     return cart;
   }
 
@@ -55,7 +61,7 @@ export class CartService {
   // ── Get cart ──────────────────────────────────────────────────────────────────
   async getCart(userId: string) {
     const cart = await this.cartModel
-      .findOne({ userId })
+      .findOne({ userId: new Types.ObjectId(userId) })
       .populate({
         path: 'items.productId',
         select: 'name slug images basePrice status sellerId',
@@ -122,7 +128,9 @@ export class CartService {
     inventoryId: string,
     input: UpdateCartItemDto,
   ) {
-    const cart = await this.cartModel.findOne({ userId });
+    const cart = await this.cartModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!cart) throw new NotFoundException('Cart not found');
 
     const itemIndex = cart.items.findIndex(
@@ -146,7 +154,9 @@ export class CartService {
 
   // ── Remove item ───────────────────────────────────────────────────────────────
   async removeCartItem(userId: string, inventoryId: string) {
-    const cart = await this.cartModel.findOne({ userId });
+    const cart = await this.cartModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!cart) throw new NotFoundException('Cart not found');
 
     const exists = cart.items.some(
@@ -163,6 +173,9 @@ export class CartService {
 
   // ── Clear cart ────────────────────────────────────────────────────────────────
   async clearCart(userId: string) {
-    await this.cartModel.findOneAndUpdate({ userId }, { items: [] });
+    await this.cartModel.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId) },
+      { items: [] },
+    );
   }
 }
