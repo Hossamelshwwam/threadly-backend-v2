@@ -9,4 +9,9 @@ export class TestController {
   test() {
     return this.testService.test();
   }
+
+  @Get('users')
+  async getUsers() {
+    return await this.testService.users();
+  }
 }
