@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 // import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 // import { OrderModule } from './order/order.module';
@@ -18,6 +18,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
 // import { ReviewModule } from './review/review.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SharedModule } from './common/module/shared.module';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -49,7 +50,7 @@ import { SharedModule } from './common/module/shared.module';
         },
       }),
     }),
-    AuthModule,
+    // AuthModule,
     // OrderModule,
     // SellerModule,
     // PayoutModule,
@@ -61,6 +62,7 @@ import { SharedModule } from './common/module/shared.module';
     CloudinaryModule,
     // ReviewModule,
     SharedModule,
+    TestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
