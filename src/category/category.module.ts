@@ -3,7 +3,7 @@ import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CategorySchema } from './schema/category.schema';
-import { ProductSchema } from 'src/product/schema/product.schema';
+import { ProductSchema } from '../product/schema/product.schema';
 
 @Module({
   imports: [

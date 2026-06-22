@@ -7,17 +7,17 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { ProductDocument } from './schema/product.schema';
 import { Model, Types } from 'mongoose';
-import { SellerDocument } from 'src/seller/schema/seller.schema';
-import { CategoryDocument } from 'src/category/schema/category.schema';
-import { InventoryDocument } from 'src/inventory/schema/inventory.schema';
+import { SellerDocument } from '../seller/schema/seller.schema';
+import { CategoryDocument } from '../category/schema/category.schema';
+import { InventoryDocument } from '../inventory/schema/inventory.schema';
 import {
   CreateProductDto,
   ListProductsQueryDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { SlugService } from 'src/common/services/slug.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { PaginationService } from '../common/services/pagination.service';
+import { SlugService } from '../common/services/slug.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductService {

@@ -8,10 +8,10 @@ import {
   Put,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
-import type { AuthUser } from 'src/common/types/user.type';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
+import type { AuthUser } from '../common/types/user.type';
 import { AddToCartDto, UpdateCartItemDto } from './dt/cart.dto';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('cart')

@@ -14,9 +14,9 @@ import {
   UpdateSellerDto,
   AdminListSellersQueryDto,
 } from './dto/seller.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { SlugService } from 'src/common/services/slug.service';
+import { PaginationService } from '../common/services/pagination.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { SlugService } from '../common/services/slug.service';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()

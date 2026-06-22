@@ -1,9 +1,9 @@
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { ReviewService } from './review.service';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
-import type { AuthUser } from 'src/common/types/user.type';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
+import type { AuthUser } from '../common/types/user.type';
 import { CreateReviewDto, ListReviewsQueryDto } from './dto/review.dto';
 import {
   Body,

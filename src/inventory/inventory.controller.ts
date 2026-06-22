@@ -9,15 +9,15 @@ import {
   Put,
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
-import type { AuthUser } from 'src/common/types/user.type';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
+import type { AuthUser } from '../common/types/user.type';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
 import {
   BulkCreateVariantsDto,
   CreateVariantDto,
   RestockVariantDto,
   UpdateVariantDto,
 } from './dto/inventory.dto';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('inventory')

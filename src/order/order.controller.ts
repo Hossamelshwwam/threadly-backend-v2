@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { OrderService } from './order.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
-import type { AuthUser } from 'src/common/types/user.type';
+import { AuthGuard } from '../common/guards/auth.guard';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
+import type { AuthUser } from '../common/types/user.type';
 import {
   AdminUpdateOrderDto,
   ListOrdersQueryDto,

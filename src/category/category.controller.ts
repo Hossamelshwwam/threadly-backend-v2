@@ -22,14 +22,14 @@ import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from './dto/category.dto';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerConfig } from 'src/cloudinary/multer.config';
+import { multerConfig } from '../cloudinary/multer.config';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('categories')
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) { }
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
   async listCategories() {

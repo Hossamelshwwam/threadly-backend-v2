@@ -16,17 +16,17 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import type { AuthUser } from 'src/common/types/user.type';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
+import type { AuthUser } from '../common/types/user.type';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { multerConfig } from 'src/cloudinary/multer.config';
+import { multerConfig } from '../cloudinary/multer.config';
 import {
   CreateProductDto,
   DeleteProductImageDto,
   ListProductsQueryDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')

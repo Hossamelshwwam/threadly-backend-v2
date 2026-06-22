@@ -26,11 +26,11 @@ import {
   UpdateProfileDto,
 } from './dto/user-dto';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { AuthRoles } from 'src/common/decorator/auth-roles.decorator';
-import type { AuthUser } from 'src/common/types/user.type';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
+import { AuthRoles } from '../common/decorator/auth-roles.decorator';
+import type { AuthUser } from '../common/types/user.type';
+import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerConfig } from 'src/cloudinary/multer.config';
+import { multerConfig } from '../cloudinary/multer.config';
 
 @Controller('users')
 export class UserController {

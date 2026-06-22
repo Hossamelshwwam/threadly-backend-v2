@@ -10,7 +10,7 @@ import { OrderDocument } from './schema/order.schema';
 import { UserDocument } from '../user/schema/user.schema';
 import { SellerDocument } from '../seller/schema/seller.schema';
 import { ConfigService } from '@nestjs/config';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationService } from '../common/services/pagination.service';
 import { CartService } from '../cart/cart.service'; // Adjust relative to directory blueprint
 import {
   AdminUpdateOrderDto,
@@ -21,8 +21,8 @@ import {
 import {
   OrderItem,
   OrderItemDocument,
-} from 'src/order-item/schema/order-item.schema';
-import { Address } from 'src/user/schema/address.schema';
+} from '../order-item/schema/order-item.schema';
+import { Address } from '../user/schema/address.schema';
 
 const STATUS_TRANSITIONS: Record<string, string[]> = {
   pending: ['processing', 'cancelled'],

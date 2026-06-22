@@ -8,8 +8,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { InventoryDocument } from './schema/inventory.schema';
 import { Model } from 'mongoose';
-import { ProductDocument } from 'src/product/schema/product.schema';
-import { SellerDocument } from 'src/seller/schema/seller.schema';
+import { ProductDocument } from '../product/schema/product.schema';
+import { SellerDocument } from '../seller/schema/seller.schema';
 import {
   BulkCreateVariantsDto,
   CreateVariantDto,
@@ -25,7 +25,7 @@ export class InventoryService {
     private readonly productModel: Model<ProductDocument>,
     @InjectModel('Seller')
     private readonly sellerModel: Model<SellerDocument>,
-  ) { }
+  ) {}
 
   // ── helpers ───────────────────────────────────────────────────────────────────
   private async assertSellerOwnsProduct(
@@ -58,7 +58,11 @@ export class InventoryService {
     productId: string,
     body: CreateVariantDto,
   ) {
-    const { product } = await this.assertSellerOwnsProduct(userId, role, productId);
+    const { product } = await this.assertSellerOwnsProduct(
+      userId,
+      role,
+      productId,
+    );
 
     const existing = await this.inventoryModel.findOne({
       productId,
@@ -75,7 +79,10 @@ export class InventoryService {
     });
     if (skuTaken) throw new ConflictException('SKU already in use');
 
-    const variant = await this.inventoryModel.create({ productId: product._id, ...body });
+    const variant = await this.inventoryModel.create({
+      productId: product._id,
+      ...body,
+    });
     return variant;
   }
 

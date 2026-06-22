@@ -9,11 +9,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder, Types } from 'mongoose';
 import { ReviewDocument } from './schema/review.schema';
 import { CreateReviewDto, ListReviewsQueryDto } from './dto/review.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { OrderItemDocument } from 'src/order-item/schema/order-item.schema';
-import { ProductDocument } from 'src/product/schema/product.schema';
-import { SellerDocument } from 'src/seller/schema/seller.schema';
+import { PaginationService } from '../common/services/pagination.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { OrderItemDocument } from '../order-item/schema/order-item.schema';
+import { ProductDocument } from '../product/schema/product.schema';
+import { SellerDocument } from '../seller/schema/seller.schema';
 
 @Injectable()
 export class ReviewService {

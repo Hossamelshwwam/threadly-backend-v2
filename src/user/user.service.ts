@@ -16,9 +16,9 @@ import {
   UpdateAddressDto,
   UpdateProfileDto,
 } from './dto/user-dto';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { OrderDocument } from 'src/order/schema/order.schema';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { PaginationService } from '../common/services/pagination.service';
+import { OrderDocument } from '../order/schema/order.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {

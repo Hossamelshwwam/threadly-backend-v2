@@ -11,10 +11,10 @@ import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from './dto/category.dto';
-import { ProductDocument } from 'src/product/schema/product.schema';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { SlugService } from 'src/common/services/slug.service';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { ProductDocument } from '../product/schema/product.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { SlugService } from '../common/services/slug.service';
+import { PaginationService } from '../common/services/pagination.service';
 
 @Injectable()
 export class CategoryService {

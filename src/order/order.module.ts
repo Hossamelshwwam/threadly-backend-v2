@@ -3,15 +3,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { OrderSchema } from './schema/order.schema';
 import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
-import { UserSchema } from 'src/user/schema/user.schema';
-import { CartSchema } from 'src/cart/schema/cart.schema';
-import { InventorySchema } from 'src/inventory/schema/inventory.schema';
-import { OrderItemSchema } from 'src/order-item/schema/order-item.schema';
-import { PayoutSchema } from 'src/payout/schema/payout.schema';
-import { ProductSchema } from 'src/product/schema/product.schema';
-import { ReviewSchema } from 'src/review/schema/review.schema';
-import { SellerSchema } from 'src/seller/schema/seller.schema';
-import { CartModule } from 'src/cart/cart.module';
+import { UserSchema } from '../user/schema/user.schema';
+import { CartSchema } from '../cart/schema/cart.schema';
+import { InventorySchema } from '../inventory/schema/inventory.schema';
+import { OrderItemSchema } from '../order-item/schema/order-item.schema';
+import { PayoutSchema } from '../payout/schema/payout.schema';
+import { ProductSchema } from '../product/schema/product.schema';
+import { ReviewSchema } from '../review/schema/review.schema';
+import { SellerSchema } from '../seller/schema/seller.schema';
+import { CartModule } from '../cart/cart.module';
 
 @Module({
   imports: [

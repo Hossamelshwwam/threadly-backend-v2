@@ -9,7 +9,7 @@ import { Model, Types } from 'mongoose';
 import { PayoutDocument } from './schema/payout.schema';
 import { SellerDocument } from '../seller/schema/seller.schema';
 import { ListPayoutsQueryDto, UpdatePayoutStatusDto } from './dto/payout.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationService } from '../common/services/pagination.service';
 
 @Injectable()
 export class PayoutService {

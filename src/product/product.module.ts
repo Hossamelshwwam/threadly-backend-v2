@@ -3,9 +3,9 @@ import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductSchema } from './schema/product.schema';
-import { InventorySchema } from 'src/inventory/schema/inventory.schema';
-import { CategorySchema } from 'src/category/schema/category.schema';
-import { SellerSchema } from 'src/seller/schema/seller.schema';
+import { InventorySchema } from '../inventory/schema/inventory.schema';
+import { CategorySchema } from '../category/schema/category.schema';
+import { SellerSchema } from '../seller/schema/seller.schema';
 
 @Module({
   imports: [
