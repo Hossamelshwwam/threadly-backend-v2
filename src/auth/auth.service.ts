@@ -7,14 +7,14 @@ import {
   // NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+// import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDocument } from 'src/user/schema/user.schema';
 import { UserService } from 'src/user/user.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 import bcrypt from 'bcryptjs';
-import { JwtMethodsService } from './services/jwt-methods.service';
+// import { JwtMethodsService } from './services/jwt-methods.service';
 // import crypto from 'crypto';
 
 @Injectable()
@@ -23,8 +23,8 @@ export class AuthService {
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
     private readonly userService: UserService,
     // private readonly mailerService: MailerService,
-    private readonly configService: ConfigService,
-    private readonly jwtMethodsService: JwtMethodsService,
+    // private readonly configService: ConfigService,
+    // private readonly jwtMethodsService: JwtMethodsService,
   ) {}
 
   // async sendVerificationEmail(to: string, name: string, token: string) {
@@ -140,18 +140,18 @@ export class AuthService {
         'Please verify your email before logging in',
       );
 
-    const accessToken = await this.jwtMethodsService.signAccessToken({
-      sub: user._id.toString(),
-      role: user.role,
-    });
-    const refreshToken = await this.jwtMethodsService.signRefreshToken({
-      sub: user._id.toString(),
-      role: user.role,
-    });
+    // const accessToken = await this.jwtMethodsService.signAccessToken({
+    //   sub: user._id.toString(),
+    //   role: user.role,
+    // });
+    // const refreshToken = await this.jwtMethodsService.signRefreshToken({
+    //   sub: user._id.toString(),
+    //   role: user.role,
+    // });
 
     return {
-      accessToken,
-      refreshToken,
+      // accessToken,
+      // refreshToken,
       user: {
         id: user._id,
         name: user.name,
