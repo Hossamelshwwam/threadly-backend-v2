@@ -8,10 +8,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
   app.enableCors({
     origin: [
-      'http://localhost:3000/',
-      'http://localhost:5173/',
-      'http://localhost:3001/',
-      'https://threadly-website.vercel.app/',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:3001',
+      'https://threadly-website.vercel.app',
     ],
     credentials: true,
   });
