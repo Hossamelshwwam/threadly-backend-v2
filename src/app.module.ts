@@ -1,28 +1,28 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-// import { UserModule } from './user/user.module';
+import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
-// import { OrderModule } from './order/order.module';
-// import { SellerModule } from './seller/seller.module';
-// import { PayoutModule } from './payout/payout.module';
-// import { ProductModule } from './product/product.module';
-// import { OrderItemModule } from './order-item/order-item.module';
-// import { CategoryModule } from './category/category.module';
-// import { InventoryModule } from './inventory/inventory.module';
-// import { CartModule } from './cart/cart.module';
-// import { ReviewModule } from './review/review.module';
+import { OrderModule } from './order/order.module';
+import { SellerModule } from './seller/seller.module';
+import { PayoutModule } from './payout/payout.module';
+import { ProductModule } from './product/product.module';
+import { OrderItemModule } from './order-item/order-item.module';
+import { CategoryModule } from './category/category.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { CartModule } from './cart/cart.module';
+import { ReviewModule } from './review/review.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SharedModule } from './common/module/shared.module';
 import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
-    // UserModule,
+    UserModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       useFactory: (config: ConfigService) => ({
@@ -51,16 +51,16 @@ import { TestModule } from './test/test.module';
       }),
     }),
     AuthModule,
-    // OrderModule,
-    // SellerModule,
-    // PayoutModule,
-    // ProductModule,
-    // OrderItemModule,
-    // CategoryModule,
-    // InventoryModule,
-    // CartModule,
+    OrderModule,
+    SellerModule,
+    PayoutModule,
+    ProductModule,
+    OrderItemModule,
+    CategoryModule,
+    InventoryModule,
+    CartModule,
     CloudinaryModule,
-    // ReviewModule,
+    ReviewModule,
     SharedModule,
     TestModule,
   ],
