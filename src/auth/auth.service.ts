@@ -1,10 +1,10 @@
 // import { MailerService } from '@nestjs-modules/mailer';
 import {
-  BadRequestException,
+  // BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
+  // NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -15,7 +15,7 @@ import { UserService } from 'src/user/user.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 import bcrypt from 'bcryptjs';
 import { JwtMethodsService } from './services/jwt-methods.service';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -105,7 +105,7 @@ export class AuthService {
       role: body.role,
     });
 
-    const { verificationTokenExpiry, hashedToken, token } =
+    const { verificationTokenExpiry, hashedToken } =
       this.userService.generateVerificationToken();
 
     user.verificationToken = hashedToken;
@@ -161,84 +161,84 @@ export class AuthService {
     };
   }
 
-  async verifyEmail(token: string) {
-    const hashed = crypto.createHash('sha256').update(token).digest('hex');
+  // async verifyEmail(token: string) {
+  //   const hashed = crypto.createHash('sha256').update(token).digest('hex');
 
-    const user = await this.userModel
-      .findOne({
-        verificationToken: hashed,
-        verificationTokenExpiry: { $gt: new Date() },
-      })
-      .select('+verificationToken +verificationTokenExpiry');
+  //   const user = await this.userModel
+  //     .findOne({
+  //       verificationToken: hashed,
+  //       verificationTokenExpiry: { $gt: new Date() },
+  //     })
+  //     .select('+verificationToken +verificationTokenExpiry');
 
-    if (!user)
-      throw new BadRequestException('Invalid or expired verification link');
+  //   if (!user)
+  //     throw new BadRequestException('Invalid or expired verification link');
 
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    user.verificationTokenExpiry = undefined;
-    await user.save();
-  }
+  //   user.isVerified = true;
+  //   user.verificationToken = undefined;
+  //   user.verificationTokenExpiry = undefined;
+  //   await user.save();
+  // }
 
-  async sendVerificationEmailAgain(email: string) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new NotFoundException('User not found');
+  // async sendVerificationEmailAgain(email: string) {
+  //   const user = await this.userModel.findOne({ email });
+  //   if (!user) throw new NotFoundException('User not found');
 
-    const { hashedToken, token, verificationTokenExpiry } =
-      this.userService.generateVerificationToken();
-    user.verificationToken = hashedToken;
-    user.verificationTokenExpiry = verificationTokenExpiry;
-    await user.save();
-    // await this.sendVerificationEmail(user.email, user.name, token);
-  }
+  //   const { hashedToken, token, verificationTokenExpiry } =
+  //     this.userService.generateVerificationToken();
+  //   user.verificationToken = hashedToken;
+  //   user.verificationTokenExpiry = verificationTokenExpiry;
+  //   await user.save();
+  //   await this.sendVerificationEmail(user.email, user.name, token);
+  // }
 
-  async forgotPassword(email: string) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new NotFoundException('User not found');
+  // async forgotPassword(email: string) {
+  //   const user = await this.userModel.findOne({ email });
+  //   if (!user) throw new NotFoundException('User not found');
 
-    const { hashedToken, passwordResetExpiry, token } =
-      this.userService.generatePasswordResetToken();
+  //   const { hashedToken, passwordResetExpiry, token } =
+  //     this.userService.generatePasswordResetToken();
 
-    user.passwordResetToken = hashedToken;
-    user.passwordResetExpiry = passwordResetExpiry;
-    await user.save();
-    // await this.sendPasswordResetEmail(user.email, user.name, token);
-  }
+  //   user.passwordResetToken = hashedToken;
+  //   user.passwordResetExpiry = passwordResetExpiry;
+  //   await user.save();
+  //   await this.sendPasswordResetEmail(user.email, user.name, token);
+  // }
 
-  async resetPassword(rawToken: string, newPassword: string) {
-    const hashed = crypto.createHash('sha256').update(rawToken).digest('hex');
+  // async resetPassword(rawToken: string, newPassword: string) {
+  //   const hashed = crypto.createHash('sha256').update(rawToken).digest('hex');
 
-    const user = await this.userModel
-      .findOne({
-        passwordResetToken: hashed,
-        passwordResetExpiry: { $gt: new Date() },
-      })
-      .select('+passwordResetToken +passwordResetExpiry +passwordHash');
+  //   const user = await this.userModel
+  //     .findOne({
+  //       passwordResetToken: hashed,
+  //       passwordResetExpiry: { $gt: new Date() },
+  //     })
+  //     .select('+passwordResetToken +passwordResetExpiry +passwordHash');
 
-    if (!user) throw new BadRequestException('Invalid or expired reset link');
+  //   if (!user) throw new BadRequestException('Invalid or expired reset link');
 
-    const newPasswordHash = await this.hashPassword(newPassword);
+  //   const newPasswordHash = await this.hashPassword(newPassword);
 
-    user.passwordHash = newPasswordHash;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpiry = undefined;
-    await user.save();
-  }
+  //   user.passwordHash = newPasswordHash;
+  //   user.passwordResetToken = undefined;
+  //   user.passwordResetExpiry = undefined;
+  //   await user.save();
+  // }
 
-  async refreshAccessToken(rawRefreshToken: string) {
-    const payload = this.jwtMethodsService.verifyRefreshToken(rawRefreshToken);
+  // async refreshAccessToken(rawRefreshToken: string) {
+  //   const payload = this.jwtMethodsService.verifyRefreshToken(rawRefreshToken);
 
-    const user = await this.userModel
-      .findById(payload.userId)
-      .select('isActive role');
-    if (!user || !user.isActive)
-      throw new UnauthorizedException('Account not found');
+  //   const user = await this.userModel
+  //     .findById(payload.userId)
+  //     .select('isActive role');
+  //   if (!user || !user.isActive)
+  //     throw new UnauthorizedException('Account not found');
 
-    return {
-      accessToken: this.jwtMethodsService.signAccessToken({
-        sub: user._id.toString(),
-        role: user.role,
-      }),
-    };
-  }
+  //   return {
+  //     accessToken: this.jwtMethodsService.signAccessToken({
+  //       sub: user._id.toString(),
+  //       role: user.role,
+  //     }),
+  //   };
+  // }
 }
