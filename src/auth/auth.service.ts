@@ -1,31 +1,31 @@
 // import { MailerService } from '@nestjs-modules/mailer';
 import {
   // BadRequestException,
-  ConflictException,
-  ForbiddenException,
+  // ConflictException,
+  // ForbiddenException,
   Injectable,
   // NotFoundException,
-  UnauthorizedException,
+  // UnauthorizedException,
 } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserDocument } from 'src/user/schema/user.schema';
-import { UserService } from 'src/user/user.service';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+// import { InjectModel } from '@nestjs/mongoose';
+// import { Model } from 'mongoose';
+// import { UserDocument } from 'src/user/schema/user.schema';
+// import { UserService } from 'src/user/user.service';
+// import { LoginDto, RegisterDto } from './dto/auth.dto';
 import bcrypt from 'bcryptjs';
 // import { JwtMethodsService } from './services/jwt-methods.service';
 // import crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectModel('User') private readonly userModel: Model<UserDocument>,
-    private readonly userService: UserService,
+  constructor() {
+    // @InjectModel('User') private readonly userModel: Model<UserDocument>,
+    // private readonly userService: UserService,
     // private readonly mailerService: MailerService,
     // private readonly configService: ConfigService,
     // private readonly jwtMethodsService: JwtMethodsService,
-  ) {}
+  }
 
   // async sendVerificationEmail(to: string, name: string, token: string) {
   //   await this.mailerService.sendMail({
@@ -92,74 +92,74 @@ export class AuthService {
     return bcrypt.hash(password, 12);
   }
 
-  async register(body: RegisterDto) {
-    const existing = await this.userModel.findOne({ email: body.email });
-    if (existing) throw new ConflictException('Email already in use');
+  // async register(body: RegisterDto) {
+  //   const existing = await this.userModel.findOne({ email: body.email });
+  //   if (existing) throw new ConflictException('Email already in use');
 
-    const passwordHash = await this.hashPassword(body.password);
+  //   const passwordHash = await this.hashPassword(body.password);
 
-    const user = new this.userModel({
-      name: body.name,
-      email: body.email,
-      passwordHash,
-      role: body.role,
-    });
+  //   const user = new this.userModel({
+  //     name: body.name,
+  //     email: body.email,
+  //     passwordHash,
+  //     role: body.role,
+  //   });
 
-    const { verificationTokenExpiry, hashedToken } =
-      this.userService.generateVerificationToken();
+  //   const { verificationTokenExpiry, hashedToken } =
+  //     this.userService.generateVerificationToken();
 
-    user.verificationToken = hashedToken;
-    user.verificationTokenExpiry = verificationTokenExpiry;
-    await user.save();
+  //   user.verificationToken = hashedToken;
+  //   user.verificationTokenExpiry = verificationTokenExpiry;
+  //   await user.save();
 
-    // await this.sendVerificationEmail(user.email, user.name, token);
+  //   await this.sendVerificationEmail(user.email, user.name, token);
 
-    return {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    };
-  }
+  //   return {
+  //     id: user._id,
+  //     name: user.name,
+  //     email: user.email,
+  //     role: user.role,
+  //   };
+  // }
 
-  async login(body: LoginDto) {
-    const user = await this.userModel
-      .findOne({ email: body.email })
-      .select('+passwordHash');
-    if (!user || !user.isActive)
-      throw new UnauthorizedException('Invalid credentials');
+  // async login(body: LoginDto) {
+  //   const user = await this.userModel
+  //     .findOne({ email: body.email })
+  //     .select('+passwordHash');
+  //   if (!user || !user.isActive)
+  //     throw new UnauthorizedException('Invalid credentials');
 
-    const valid = await this.userService.comparePassword(
-      body.password,
-      user.passwordHash,
-    );
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
+  //   const valid = await this.userService.comparePassword(
+  //     body.password,
+  //     user.passwordHash,
+  //   );
+  //   if (!valid) throw new UnauthorizedException('Invalid credentials');
 
-    if (!user.isVerified)
-      throw new ForbiddenException(
-        'Please verify your email before logging in',
-      );
+  //   if (!user.isVerified)
+  //     throw new ForbiddenException(
+  //       'Please verify your email before logging in',
+  //     );
 
-    // const accessToken = await this.jwtMethodsService.signAccessToken({
-    //   sub: user._id.toString(),
-    //   role: user.role,
-    // });
-    // const refreshToken = await this.jwtMethodsService.signRefreshToken({
-    //   sub: user._id.toString(),
-    //   role: user.role,
-    // });
+  // const accessToken = await this.jwtMethodsService.signAccessToken({
+  //   sub: user._id.toString(),
+  //   role: user.role,
+  // });
+  // const refreshToken = await this.jwtMethodsService.signRefreshToken({
+  //   sub: user._id.toString(),
+  //   role: user.role,
+  // });
 
-    return {
-      // accessToken,
-      // refreshToken,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    };
-  }
+  //   return {
+  //     accessToken,
+  //     refreshToken,
+  //     user: {
+  //       id: user._id,
+  //       name: user.name,
+  //       email: user.email,
+  //       role: user.role,
+  //     },
+  //   };
+  // }
 
   // async verifyEmail(token: string) {
   //   const hashed = crypto.createHash('sha256').update(token).digest('hex');

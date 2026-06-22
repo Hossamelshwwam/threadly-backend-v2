@@ -1,36 +1,35 @@
 import {
-  Body,
+  // Body,
   Controller,
   //  Get, Param,
-  Post,
+  // Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {
-  // ForgotPasswordDto,
-  LoginDto,
-  // RefreshTokenDto,
-  RegisterDto,
-  // ResetPasswordDto,
-  // SendVerificationEmailDto,
-} from './dto/auth.dto';
+import {} from // ForgotPasswordDto,
+// LoginDto,
+// RefreshTokenDto,
+// RegisterDto,
+// ResetPasswordDto,
+// SendVerificationEmailDto,
+'./dto/auth.dto';
 // import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @Post('register')
-  async register(@Body() body: RegisterDto) {
-    const data = await this.authService.register(body);
-    return {
-      success: true,
-      statusCode: 201,
-      data,
-      message:
-        'Registration successful. Please check your email to verify your account.',
-    };
-  }
+  // @Post('register')
+  // async register(@Body() body: RegisterDto) {
+  //   const data = await this.authService.register(body);
+  //   return {
+  //     success: true,
+  //     statusCode: 201,
+  //     data,
+  //     message:
+  //       'Registration successful. Please check your email to verify your account.',
+  //   };
+  // }
 
-  @Post('login')
+  // @Post('login')
   // @ApiBody({
   //   schema: {
   //     example: {
@@ -39,15 +38,15 @@ export class AuthController {
   //     },
   //   },
   // })
-  async login(@Body() body: LoginDto) {
-    const data = await this.authService.login(body);
-    return {
-      success: true,
-      statusCode: 200,
-      data,
-      message: 'Login successful.',
-    };
-  }
+  // async login(@Body() body: LoginDto) {
+  //   const data = await this.authService.login(body);
+  //   return {
+  //     success: true,
+  //     statusCode: 200,
+  //     data,
+  //     message: 'Login successful.',
+  //   };
+  // }
 
   // @Get('verify-email/:token')
   // async verifyEmail(@Param('token') token: string) {
