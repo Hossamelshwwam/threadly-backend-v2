@@ -1,4 +1,4 @@
-import { MailerService } from '@nestjs-modules/mailer';
+// import { MailerService } from '@nestjs-modules/mailer';
 import {
   BadRequestException,
   ConflictException,
@@ -22,72 +22,72 @@ export class AuthService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
     private readonly userService: UserService,
-    private readonly mailerService: MailerService,
+    // private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
     private readonly jwtMethodsService: JwtMethodsService,
   ) {}
 
-  async sendVerificationEmail(to: string, name: string, token: string) {
-    await this.mailerService.sendMail({
-      to,
-      subject: 'Verify your Threadly account',
-      html: `
-      <h2>Hi ${name},</h2>
-      <p>
-        Click the link below to verify your email.
-        This link expires in 24 hours.
-      </p>
+  // async sendVerificationEmail(to: string, name: string, token: string) {
+  //   await this.mailerService.sendMail({
+  //     to,
+  //     subject: 'Verify your Threadly account',
+  //     html: `
+  //     <h2>Hi ${name},</h2>
+  //     <p>
+  //       Click the link below to verify your email.
+  //       This link expires in 24 hours.
+  //     </p>
 
-      <a
-        href="${this.configService.get<string>('CLIENT_URL')}/verify-email?token=${token}"
-        style="
-          padding:12px 24px;
-          background:#E94560;
-          color:#fff;
-          border-radius:6px;
-          text-decoration:none;
-          display:inline-block;
-        "
-      >
-        Verify Email
-      </a>
-    `,
-    });
-  }
+  //     <a
+  //       href="${this.configService.get<string>('CLIENT_URL')}/verify-email?token=${token}"
+  //       style="
+  //         padding:12px 24px;
+  //         background:#E94560;
+  //         color:#fff;
+  //         border-radius:6px;
+  //         text-decoration:none;
+  //         display:inline-block;
+  //       "
+  //     >
+  //       Verify Email
+  //     </a>
+  //   `,
+  //   });
+  // }
 
-  async sendPasswordResetEmail(to: string, name: string, token: string) {
-    await this.mailerService.sendMail({
-      to,
-      subject: 'Reset your Threadly password',
+  // async sendPasswordResetEmail(to: string, name: string, token: string) {
+  //   await this.mailerService.sendMail({
+  //     to,
+  //     subject: 'Reset your Threadly password',
 
-      html: `
-      <h2>Hi ${name},</h2>
+  //     html: `
+  //     <h2>Hi ${name},</h2>
 
-      <p>
-        Click the link below to reset your password.
-        This link expires in 1 hour.
-      </p>
+  //     <p>
+  //       Click the link below to reset your password.
+  //       This link expires in 1 hour.
+  //     </p>
 
-      <a
-        href="${this.configService.get<string>('CLIENT_URL')}/reset-password?token=${token}"
-        style="
-          padding:12px 24px;
-          background:#E94560;
-          color:#fff;
-          border-radius:6px;
-          text-decoration:none;
-          display:inline-block;
-        "
-      >
-        Reset Password
-      </a>
+  //     <a
+  //       href="${this.configService.get<string>('CLIENT_URL')}/reset-password?token=${token}"
+  //       style="
+  //         padding:12px 24px;
+  //         background:#E94560;
+  //         color:#fff;
+  //         border-radius:6px;
+  //         text-decoration:none;
+  //         display:inline-block;
+  //       "
+  //     >
+  //       Reset Password
+  //     </a>
 
-      <p style="margin-top:16px;">
-        If you didn't request this, you can safely ignore this email.
-      </p>
-    `,
-    });
-  }
+  //     <p style="margin-top:16px;">
+  //       If you didn't request this, you can safely ignore this email.
+  //     </p>
+  //   `,
+  //   });
+  // }
   async hashPassword(password: string) {
     return bcrypt.hash(password, 12);
   }
@@ -112,7 +112,7 @@ export class AuthService {
     user.verificationTokenExpiry = verificationTokenExpiry;
     await user.save();
 
-    await this.sendVerificationEmail(user.email, user.name, token);
+    // await this.sendVerificationEmail(user.email, user.name, token);
 
     return {
       id: user._id,
@@ -189,7 +189,7 @@ export class AuthService {
     user.verificationToken = hashedToken;
     user.verificationTokenExpiry = verificationTokenExpiry;
     await user.save();
-    await this.sendVerificationEmail(user.email, user.name, token);
+    // await this.sendVerificationEmail(user.email, user.name, token);
   }
 
   async forgotPassword(email: string) {
@@ -202,7 +202,7 @@ export class AuthService {
     user.passwordResetToken = hashedToken;
     user.passwordResetExpiry = passwordResetExpiry;
     await user.save();
-    await this.sendPasswordResetEmail(user.email, user.name, token);
+    // await this.sendPasswordResetEmail(user.email, user.name, token);
   }
 
   async resetPassword(rawToken: string, newPassword: string) {
