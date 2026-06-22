@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { AuthModule } from './auth/auth.module';
-// import { MailerModule } from '@nestjs-modules/mailer';
-// import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 // import { OrderModule } from './order/order.module';
 // import { SellerModule } from './seller/seller.module';
 // import { PayoutModule } from './payout/payout.module';
@@ -16,8 +16,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { InventoryModule } from './inventory/inventory.module';
 // import { CartModule } from './cart/cart.module';
 // import { ReviewModule } from './review/review.module';
-// import { CloudinaryModule } from './cloudinary/cloudinary.module';
-// import { SharedModule } from './common/module/shared.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { SharedModule } from './common/module/shared.module';
 
 @Module({
   imports: [
@@ -30,25 +30,25 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
-    // MailerModule.forRootAsync({
-    //   inject: [ConfigService],
-    //   useFactory: (config: ConfigService) => ({
-    //     transport: {
-    //       host: config.get<string>('SMTP_HOST'),
-    //       port: config.get<number>('SMTP_PORT'),
-    //       auth: {
-    //         user: config.get<string>('SMTP_USER'),
-    //         pass: config.get<string>('SMTP_PASS'),
-    //       },
-    //     },
-    //     defaults: {
-    //       from: config.get<string>('EMAIL_FROM'),
-    //     },
-    //     template: {
-    //       adapter: new HandlebarsAdapter(),
-    //     },
-    //   }),
-    // }),
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        transport: {
+          host: config.get<string>('SMTP_HOST'),
+          port: config.get<number>('SMTP_PORT'),
+          auth: {
+            user: config.get<string>('SMTP_USER'),
+            pass: config.get<string>('SMTP_PASS'),
+          },
+        },
+        defaults: {
+          from: config.get<string>('EMAIL_FROM'),
+        },
+        template: {
+          adapter: new HandlebarsAdapter(),
+        },
+      }),
+    }),
     // AuthModule,
     // OrderModule,
     // SellerModule,
@@ -58,9 +58,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     // CategoryModule,
     // InventoryModule,
     // CartModule,
-    // CloudinaryModule,
+    CloudinaryModule,
     // ReviewModule,
-    // SharedModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
