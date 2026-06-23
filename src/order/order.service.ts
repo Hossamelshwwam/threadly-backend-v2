@@ -347,7 +347,7 @@ export class OrderService {
       const [order] = await this.orderModel.create(
         [
           {
-            buyerId: userId,
+            buyerId: new Types.ObjectId(userId),
             orderNumber,
             shippingAddress,
             subtotal,
@@ -406,7 +406,9 @@ export class OrderService {
       query.limit,
     );
 
-    const filter: Record<string, unknown> = { buyerId: userId };
+    const filter: Record<string, unknown> = {
+      buyerId: new Types.ObjectId(userId),
+    };
     if (query.status) filter.status = query.status;
     if (query.paymentStatus) filter.paymentStatus = query.paymentStatus;
     if (query.from || query.to) {
@@ -493,7 +495,9 @@ export class OrderService {
 
   // ── Get pending reviews (buyer) ───────────────────────────────────────────────
   async getPendingReviews(userId: string) {
-    const orders = await this.orderModel.find({ buyerId: userId });
+    const orders = await this.orderModel.find({
+      buyerId: new Types.ObjectId(userId),
+    });
     const orderIds = orders.map((o) => o._id);
 
     const deliveredItems = await this.orderItemModel
@@ -501,7 +505,7 @@ export class OrderService {
       .populate('productId', 'name slug images');
 
     const reviewedItemIds = await this.reviewModel
-      .find({ buyerId: userId })
+      .find({ buyerId: new Types.ObjectId(userId) })
       .distinct('orderItemId');
     const reviewedStrings = reviewedItemIds.map((id) => id.toString());
 

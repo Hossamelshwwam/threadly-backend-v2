@@ -89,8 +89,8 @@ export class ReviewService {
 
     const review = await this.reviewModel.create({
       productId: orderItem.productId,
-      buyerId: userId,
-      orderItemId: input.orderItemId,
+      buyerId: new Types.ObjectId(userId),
+      orderItemId: new Types.ObjectId(input.orderItemId),
       rating: input.rating,
       comment: input.comment,
       images,
