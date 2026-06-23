@@ -512,7 +512,9 @@ export class OrderService {
 
   // ── Seller: list own order items ──────────────────────────────────────────────
   async listSellerOrderItems(userId: string, query: ListOrdersQueryDto) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const { skip, limit, page } = this.paginationService.getPagination(
@@ -554,7 +556,9 @@ export class OrderService {
   }
 
   async sellerGetOrderItem(itemId: string, userId: string) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
 
     if (!seller) throw new NotFoundException('Seller not found');
 
@@ -574,7 +578,9 @@ export class OrderService {
     itemId: string,
     input: UpdateOrderItemStatusDto,
   ) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const item = await this.orderItemModel.findById(itemId);

@@ -22,7 +22,9 @@ export class PayoutService {
 
   // ── Seller: list own payouts ──────────────────────────────────────────────────
   async listMyPayouts(userId: string, query: ListPayoutsQueryDto) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const { skip, limit, page } = this.paginationService.getPagination(
@@ -92,7 +94,9 @@ export class PayoutService {
 
   // ── Seller: get single payout ─────────────────────────────────────────────────
   async getMyPayout(userId: string, payoutId: string) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const payout = await this.payoutModel

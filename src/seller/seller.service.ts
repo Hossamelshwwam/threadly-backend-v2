@@ -18,6 +18,7 @@ import { PaginationService } from '../common/services/pagination.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { SlugService } from '../common/services/slug.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class SellerService {
@@ -72,7 +73,9 @@ export class SellerService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
-    const existing = await this.sellerModel.findOne({ userId });
+    const existing = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (existing)
       throw new ConflictException('You already have a store registered');
 
@@ -88,7 +91,7 @@ export class SellerService {
     }
 
     const seller = await this.sellerModel.create({
-      userId,
+      userId: new Types.ObjectId(userId),
       storeName: input.storeName,
       storeSlug: slug,
       description: input.description,
@@ -100,16 +103,13 @@ export class SellerService {
       status: 'pending',
     });
 
-    user.role = 'seller';
-    await user.save();
-
     return seller;
   }
 
   // ── Get own profile ───────────────────────────────────────────────────────────
   async getMySellerProfile(userId: string) {
     const seller = await this.sellerModel
-      .findOne({ userId })
+      .findOne({ userId: new Types.ObjectId(userId) })
       .populate('userId', 'name email phone');
     if (!seller) throw new NotFoundException('Seller profile not found');
     return seller;
@@ -117,7 +117,9 @@ export class SellerService {
 
   // ── Update own profile ────────────────────────────────────────────────────────
   async updateSellerProfile(userId: string, input: UpdateSellerDto) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
     if (seller.status === 'suspended')
       throw new ForbiddenException('Your store is suspended');
@@ -155,7 +157,9 @@ export class SellerService {
 
   // ── Upload logo ───────────────────────────────────────────────────────────────
   async uploadSellerLogo(userId: string, buffer: Buffer) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const newLogo = await this.cloudinaryService.uploadFile(buffer, 'logos');
@@ -172,7 +176,9 @@ export class SellerService {
 
   // ── Upload banner ─────────────────────────────────────────────────────────────
   async uploadSellerBanner(userId: string, buffer: Buffer) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const newBanner = await this.cloudinaryService.uploadFile(
@@ -244,22 +250,25 @@ export class SellerService {
     sellerId: string,
     input: AdminUpdateSellerStatusDto,
   ) {
-    const seller = await this.sellerModel
-      .findById(sellerId)
-      .populate('userId', 'name email');
+    const seller = await this.sellerModel.findById(sellerId);
     if (!seller) throw new NotFoundException('Seller not found');
+
+    const user = await this.userModel.findById(seller.userId).exec();
+    if (!user) throw new NotFoundException('User not found');
 
     seller.status = input.status;
     if (input.adminNote) seller.adminNote = input.adminNote;
     await seller.save();
 
-    const user = seller.userId as unknown as { name: string; email: string };
     await this.sendSellerApprovalEmail(
       user.email,
       user.name,
       input.status === 'approved',
       input.adminNote,
     ).catch(() => null);
+
+    user.role = 'seller';
+    await user.save();
 
     return seller;
   }

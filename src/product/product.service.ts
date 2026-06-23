@@ -38,7 +38,9 @@ export class ProductService {
   // ── helpers ───────────────────────────────────────────────────────────────────
   async getApprovedSeller(userId: string, role: string) {
     if (role === 'admin') return null;
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
     if (seller.status !== 'approved')
       throw new ForbiddenException('Your store is not approved yet');
@@ -302,7 +304,9 @@ export class ProductService {
     role: string,
     query: ListProductsQueryDto,
   ) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const { skip, limit, page } = this.paginationService.getPagination(
@@ -340,7 +344,7 @@ export class ProductService {
   // ── Seller: get single product ─────────────────────────────────────────────────
   async getSellerProduct(productId: string, userId: string) {
     const seller = await this.sellerModel.findOne({
-      userId,
+      userId: new Types.ObjectId(userId),
     });
 
     if (!seller) throw new NotFoundException('Seller not found');

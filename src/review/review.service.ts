@@ -190,7 +190,9 @@ export class ReviewService {
 
   // ── Seller: list reviews on own products ──────────────────────────────────────
   async listSellerReviews(userId: string, query: ListReviewsQueryDto) {
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
 
     const { skip, limit, page } = this.paginationService.getPagination(
