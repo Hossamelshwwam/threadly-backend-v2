@@ -73,16 +73,21 @@ export class SellerService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
+    console.log('approve 1');
+
     const existing = await this.sellerModel.findOne({
       userId: new Types.ObjectId(userId),
     });
     if (existing)
       throw new ConflictException('You already have a store registered');
+    console.log('approve 2');
 
     let slug = this.slugService.slugify(input.storeName);
     const slugExists = await this.sellerModel.findOne({
       storeSlug: slug,
     });
+    console.log('approve 3');
+
     if (slugExists) {
       slug = this.slugService.uniqueSlug(
         input.storeName,
@@ -90,18 +95,22 @@ export class SellerService {
       );
     }
 
+    console.log('approve 4');
+
     const seller = await this.sellerModel.create({
       userId: new Types.ObjectId(userId),
       storeName: input.storeName,
       storeSlug: slug,
       description: input.description,
       bankDetails: {
-        accountName: input.accountName,
         accountNumber: input.accountNumber,
+        accountName: input.accountName,
         bankName: input.bankName,
       },
       status: 'pending',
     });
+
+    console.log('approve 5');
 
     return seller;
   }

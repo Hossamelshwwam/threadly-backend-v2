@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { InventoryDocument } from './schema/inventory.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ProductDocument } from '../product/schema/product.schema';
 import { SellerDocument } from '../seller/schema/seller.schema';
 import {
@@ -28,6 +28,29 @@ export class InventoryService {
   ) {}
 
   // ── helpers ───────────────────────────────────────────────────────────────────
+  private assertValidObjectId(id: string, label: string) {
+    if (!Types.ObjectId.isValid(id))
+      throw new NotFoundException(`${label} not found`);
+  }
+
+  private normalizeText(value: string, label: string): string {
+    const trimmed = value.trim();
+    if (!trimmed) throw new BadRequestException(`${label} cannot be empty`);
+    return trimmed;
+  }
+
+  private normalizeSku(value: string): string {
+    return this.normalizeText(value, 'SKU').toUpperCase();
+  }
+
+  private isDuplicateKeyError(err: unknown): boolean {
+    return (
+      typeof err === 'object' &&
+      err !== null &&
+      (err as { code?: number }).code === 11000
+    );
+  }
+
   private async assertSellerOwnsProduct(
     userId: string,
     role: string,
@@ -38,12 +61,14 @@ export class InventoryService {
 
     if (role === 'admin') return { seller: null, product };
 
-    const seller = await this.sellerModel.findOne({ userId });
+    const seller = await this.sellerModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
     if (!seller) throw new NotFoundException('Seller profile not found');
     if (seller.status !== 'approved')
       throw new ForbiddenException('Store not approved');
     if (
-      product.sellerId &&
+      !product.sellerId ||
       product.sellerId.toString() !== seller._id.toString()
     )
       throw new ForbiddenException('Forbidden');
@@ -64,26 +89,39 @@ export class InventoryService {
       productId,
     );
 
+    const sku = this.normalizeSku(body.sku);
+    const size = this.normalizeText(body.size, 'Size');
+    const color = this.normalizeText(body.color, 'Color');
+
     const existing = await this.inventoryModel.findOne({
-      productId,
-      size: body.size,
-      color: body.color,
+      productId: product._id,
+      size,
+      color,
     });
     if (existing)
       throw new ConflictException(
         'A variant with this size and color already exists',
       );
 
-    const skuTaken = await this.inventoryModel.findOne({
-      sku: body.sku.toUpperCase(),
-    });
+    const skuTaken = await this.inventoryModel.findOne({ sku });
     if (skuTaken) throw new ConflictException('SKU already in use');
 
-    const variant = await this.inventoryModel.create({
-      productId: product._id,
-      ...body,
-    });
-    return variant;
+    try {
+      const variant = await this.inventoryModel.create({
+        productId: product._id,
+        ...body,
+        sku,
+        size,
+        color,
+      });
+      return variant;
+    } catch (err) {
+      if (this.isDuplicateKeyError(err))
+        throw new ConflictException(
+          'A variant with this size, color or SKU already exists',
+        );
+      throw err;
+    }
   }
 
   // ── Bulk create variants ──────────────────────────────────────────────────────
@@ -93,10 +131,22 @@ export class InventoryService {
     productId: string,
     input: BulkCreateVariantsDto,
   ) {
-    await this.assertSellerOwnsProduct(userId, role, productId);
+    const { product } = await this.assertSellerOwnsProduct(
+      userId,
+      role,
+      productId,
+    );
+
+    const payload = input.variants.map((v) => ({
+      sku: this.normalizeSku(v.sku),
+      size: this.normalizeText(v.size, 'Size'),
+      color: this.normalizeText(v.color, 'Color'),
+      stock: v.stock,
+      price: v.price,
+    }));
 
     // Check for duplicate SKUs within the request
-    const skus = input.variants.map((v) => v.sku.toUpperCase());
+    const skus = payload.map((v) => v.sku);
     if (new Set(skus).size !== skus.length)
       throw new BadRequestException('Duplicate SKUs in request');
 
@@ -110,20 +160,44 @@ export class InventoryService {
       );
 
     // Check for duplicate size+color combos within request
-    const combos = input.variants.map((v) => `${v.size}|${v.color}`);
+    const combos = payload.map((v) => `${v.size}|${v.color}`);
     if (new Set(combos).size !== combos.length)
       throw new BadRequestException(
         'Duplicate size+color combinations in request',
       );
 
-    const variants = await this.inventoryModel.insertMany(
-      input.variants.map((v) => ({ productId, ...v })),
-    );
-    return variants;
+    // Check for size+color combos already used by this product
+    const existingCombos = await this.inventoryModel
+      .find({
+        productId: product._id,
+        $or: payload.map((v) => ({ size: v.size, color: v.color })),
+      })
+      .select('size color');
+    if (existingCombos.length > 0)
+      throw new ConflictException(
+        `Variants already exist for: ${existingCombos
+          .map((v) => `${v.size}/${v.color}`)
+          .join(', ')}`,
+      );
+
+    try {
+      const variants = await this.inventoryModel.insertMany(
+        payload.map((v) => ({ productId: product._id, ...v })),
+      );
+      return variants;
+    } catch (err) {
+      if (this.isDuplicateKeyError(err))
+        throw new ConflictException(
+          'A variant with this size, color or SKU already exists',
+        );
+      throw err;
+    }
   }
 
   // ── List variants for a product ───────────────────────────────────────────────
   async listVariants(productId: string) {
+    this.assertValidObjectId(productId, 'Product');
+
     const product = await this.productModel.findById(productId);
     if (!product) throw new NotFoundException('Product not found');
 
@@ -143,6 +217,8 @@ export class InventoryService {
     variantId: string,
     body: UpdateVariantDto,
   ) {
+    this.assertValidObjectId(variantId, 'Variant');
+
     const variant = await this.inventoryModel.findById(variantId);
     if (!variant) throw new NotFoundException('Variant not found');
 
@@ -152,34 +228,71 @@ export class InventoryService {
       variant.productId.toString(),
     );
 
-    // Check no collision if size or color changed
-    if (body.size || body.color) {
-      const newSize = body.size ?? variant.size;
-      const newColor = body.color ?? variant.color;
+    const sku =
+      body.sku !== undefined ? this.normalizeSku(body.sku) : undefined;
+    const size =
+      body.size !== undefined
+        ? this.normalizeText(body.size, 'Size')
+        : undefined;
+    const color =
+      body.color !== undefined
+        ? this.normalizeText(body.color, 'Color')
+        : undefined;
+
+    // SKU must stay unique across the collection
+    if (sku !== undefined && sku !== variant.sku) {
+      const skuTaken = await this.inventoryModel.findOne({
+        sku,
+        _id: { $ne: variant._id },
+      });
+      if (skuTaken) throw new ConflictException('SKU already in use');
+    }
+
+    // Only check the combo when size or color actually changes
+    const nextSize = size ?? variant.size;
+    const nextColor = color ?? variant.color;
+    if (nextSize !== variant.size || nextColor !== variant.color) {
       const collision = await this.inventoryModel.findOne({
         productId: variant.productId,
-        size: newSize,
-        color: newColor,
+        size: nextSize,
+        color: nextColor,
         _id: { $ne: variant._id },
       });
       if (collision)
         throw new ConflictException(
           'A variant with this size and color already exists',
         );
-      if (body.size) variant.size = body.size;
-      if (body.color) variant.color = body.color;
     }
 
-    if (body.sku) variant.sku = body.sku;
+    // stock is absolute: it can never drop below what pending orders hold
+    if (body.stock !== undefined && body.stock < variant.reserved)
+      throw new BadRequestException(
+        `Stock cannot be lower than the reserved quantity (${variant.reserved})`,
+      );
+
+    if (sku !== undefined) variant.sku = sku;
+    if (size !== undefined) variant.size = size;
+    if (color !== undefined) variant.color = color;
     if (body.stock !== undefined) variant.stock = body.stock;
     if (body.price !== undefined) variant.price = body.price;
 
-    await variant.save();
+    try {
+      await variant.save();
+    } catch (err) {
+      if (this.isDuplicateKeyError(err))
+        throw new ConflictException(
+          'A variant with this size, color or SKU already exists',
+        );
+      throw err;
+    }
+
     return variant;
   }
 
   // ── Delete variant ────────────────────────────────────────────────────────────
   async deleteVariant(userId: string, role: string, variantId: string) {
+    this.assertValidObjectId(variantId, 'Variant');
+
     const variant = await this.inventoryModel.findById(variantId);
     if (!variant) throw new NotFoundException('Variant not found');
 
@@ -206,6 +319,8 @@ export class InventoryService {
   ) {
     if (quantity <= 0)
       throw new BadRequestException('Quantity must be positive');
+
+    this.assertValidObjectId(variantId, 'Variant');
 
     const variant = await this.inventoryModel.findById(variantId);
     if (!variant) throw new NotFoundException('Variant not found');

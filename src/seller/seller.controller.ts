@@ -43,6 +43,8 @@ export class SellerController {
     @CurrentUser() user: AuthUser,
     @Body() body: RegisterSellerDto,
   ) {
+    console.log(body);
+
     const data = await this.sellerService.registerSeller(user.userId, body);
     return {
       success: true,
